@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Analyzer test</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../ydn-base/js/deps.js"></script>
+    <script src="../../../ydn-db/js/deps.js"></script>
+    <script src="../../../natural/js/deps.js"></script>
+    <script type="text/javascript" src="../deps.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/deps.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/tokenizer/normalizer_lowercase.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/tokenizer/normalizer_lowercase_nomark.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/tokenizer/categ_letters_numbers.js"></script>
+    <script type="text/javascript">
+        goog.require('fullproof.normalizer');
+        goog.require('ydn.db.text.Analyzer');
+    </script>
+</head>
+<body>
+    <script type="text/javascript">
+        goog.require('goog.testing.jsunit');
+        var catalog = ydn.db.schema.fulltext.Catalog.fromJson({
+            name: 'name',
+            lang: 'en',
+            indexes: [
+                {
+                    storeName: 'animal',
+                    keyPath: 'binomial',
+                    weight: 1.0
+                }, {
+                    storeName: 'animal',
+                    keyPath: 'name',
+                    weight: 0.5
+                }]
+        });
+
+        var test_parse = function() {
+            var stda = new ydn.db.text.Analyzer(catalog);
+            assertEquals('normalizers', 3, stda.normalizers.length);
+            assertArrayEquals('simple', ['this', 'is', 'a', 'test'],
+                    stda.parse("this is a test"));
+            assertArrayEquals('with extra spaces', ['this', 'is', 'a', 'test'],
+                    stda.parse("this  is a  test"));
+        };
+        var test_query_one = function() {
+            var stda = new ydn.db.text.Analyzer(catalog);
+            var words = stda.scoreQuery("Dog");
+            // console.log(words);
+            assertEquals('length', 1, words.length);
+            assertEquals('value 0', 'Dog', words[0].getValue());
+            assertEquals('key 0', 'TK', words[0].getKeyword());
+            assertEquals('score 0', 1, words[0].getScore());
+        };
+        var test_scoring_long = function() {
+            var stda = new ydn.db.text.Analyzer(catalog);
+            var words = stda.score("Monkey is a test cow than the fish, but not that for a cow",
+                    catalog.index(0), '1');
+            var scores = words.map(function(x) {return x.getScore();});
+            /*
+            console.log(words,
+                    words.map(function(x) {return x.value;}),
+                    words.map(function(x) {return x.keyword;}),
+                    scores);
+            */
+            assertEquals('length', 4, words.length);
+            assertEquals('value 0', 'monkey', words[0].getValue());
+            assertEquals('value 1', 'test', words[1].getValue());
+            assertEquals('value 2', 'cow', words[2].getValue());
+            assertEquals('value 3', 'fish', words[3].getValue());
+            assertTrue('score 0', words[0].getScore() > words[1].getScore());
+            assertTrue('score 2', words[2].getScore() > words[1].getScore());
+        };
+
+    </script>
+</body>
+</html>

@@ -26,7 +26,7 @@ goog.require('ydn.db.text.IndexEntry');
 
 
 /**
- * Output result entry.
+ * Output result entry ranking result.
  * @param {ydn.db.schema.fulltext.Catalog} catalog original entry.
  * @param {ydn.db.text.ResultEntry} entry original entry.
  * @constructor

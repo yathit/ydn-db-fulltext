@@ -16,8 +16,8 @@
 
 
 goog.provide('ydn.db.text.QueryEngine');
-goog.require('fullproof.Analyzer');
 goog.require('ydn.db.schema.fulltext.Engine');
+goog.require('ydn.db.text.Analyzer');
 
 
 
@@ -36,9 +36,9 @@ ydn.db.text.QueryEngine = function(schema) {
   /**
    * @final
    * @protected
-   * @type {fullproof.Analyzer}
+   * @type {ydn.db.text.Analyzer}
    */
-  this.analyzer = new fullproof.Analyzer(schema);
+  this.analyzer = new ydn.db.text.Analyzer(schema);
 };
 
 

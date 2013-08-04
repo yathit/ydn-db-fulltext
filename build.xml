@@ -76,7 +76,7 @@
         </closure-compile>
 
         <concat destfile="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}" append="true">
-            <filelist dir="${work.dir}/fullproof/js/normalizer/unicode"
+            <filelist dir="${work.dir}/fullproof/js/tokenizer"
                       files="categ_letters_numbers.js,normalizer_lowercase.js,normalizer_lowercase_nomark.js"/>
         </concat>
         <concat destfile="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}"

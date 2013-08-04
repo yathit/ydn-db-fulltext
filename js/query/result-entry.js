@@ -26,8 +26,8 @@ goog.require('ydn.db.text.IndexEntry');
 
 
 /**
- * Entry restored from the database.
- * @param {ydn.db.text.QueryToken} query
+ * Entry restored from the database to a given query token.
+ * @param {ydn.db.text.QueryToken} query query token.
  * @param {string} store_name inverted index schema.
  * @param {string} key_path inverted index schema.
  * @param {IDBKey} primary_key inverted index schema.

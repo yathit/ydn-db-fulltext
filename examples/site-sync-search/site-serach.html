@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Google Site full text search with sync</title>
+
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../ydn-base/js/deps.js"></script>
+    <script src="../../../ydn-db/js/deps.js"></script>
+    <script src="../../../fullproof/js/deps.js"></script>
+    <script src="../../../natural/js/deps.js"></script>
+    <script type="text/javascript"
+            src="../../../fullproof/js/tokenizer/categ_letters_numbers.js"></script>
+    <script type="text/javascript"
+            src="../../../fullproof/js/tokenizer/normalizer_lowercase.js"></script>
+    <script type="text/javascript"
+            src="../../../fullproof/js/tokenizer/normalizer_lowercase_nomark.js"></script>
+    <script type="text/javascript" src="../../js/deps.js"></script>
+    <script type="text/javascript">
+        goog.require('ydn.debug');
+        goog.require('ydn.db.Storage');
+        goog.require('ydn.db.crud.Storage.text');
+    </script>
+    <script src="../../../ydn-db/js/config/conn.js"></script>
+    <script type="text/javascript">
+        // ydn.db.crud.Storage.text.DEBUG = true;
+        ydn.debug.log('ydn.db', 'fine');
+        ydn.debug.log('ydn.db.tr', 'off');
+        ydn.debug.log('ydn.db.sync', 'finest');
+    </script>
+
+
+    <style TYPE="text/css">
+
+        body {
+            margin: 0;
+        }
+        div.floatbox {
+            float: left;
+            width: 300px;
+        }
+
+        div.resultbox {
+            border: 1px solid black;
+            margin: 0.5em;
+            color: black;
+            background-color: #EEEEEE;
+            overflow: hidden;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        textarea.typebox {
+            float: left;
+            width: 300px;
+            height: 200px;
+            margin: 1em;
+            color: black;
+            background-color: white;
+        }
+        #results {
+            overflow-y: auto;
+        }
+        #status-bar {
+            background-color: #d3d3d3;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            margin: 0;
+            padding: 4px;
+        }
+        #status-bar span {
+            /* border: thin solid gray; */
+            padding: 0 4px;
+        }
+        .toggle {
+            padding: 0 4px;
+        }
+    </style>
+</head>
+<body>
+<h1>Web Site Search</h1>
+
+<div style="margin: 1em" id="application">
+    <div>
+        <input type="text" id="search_input" class="typebox">
+        <button id="search">Search</button>
+    </div>
+    <div id="results">
+    </div>
+</div>
+
+<div id="status-bar">
+    <span id="entry-count" title="number of entries">
+        0
+    </span>
+    <span id="index-count" title="number of indices">
+        0
+    </span>
+    <span id="status">
+        starting...
+    </span>
+</div>
+
+<script type="text/javascript" src="site-app.js"></script>
+<script type="text/javascript">
+    var app = new SiteApp();
+    app.run();
+</script>
+</body>
+</html>
