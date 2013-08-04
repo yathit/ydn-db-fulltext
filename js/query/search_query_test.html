@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Store test</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../ydn-base/js/deps.js"></script>
+    <script src="../../../ydn-db/js/deps.js"></script>
+    <script src="../../../natural/js/deps.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/deps.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/normalizer_lowercase.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/normalizer_lowercase_nomark.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/categ_letters_numbers.js"></script>
+    <script type="text/javascript">
+        goog.require('ydn.db.text.ResultSet');
+        goog.require('ydn.debug');
+        goog.require('ydn.db.Storage');
+        goog.require('ydn.db.crud.Storage.text');
+        goog.require('goog.testing.ContinuationTestCase');
+        goog.require('goog.testing.jsunit');
+    </script>
+    <script src="../../../ydn-db/js/config/conn.js"></script>
+    <script type="text/javascript">
+        // ydn.db.crud.Storage.text.DEBUG = true;
+        // ydn.debug.log('ydn.db', 'finest');
+    </script>
+</head>
+<body>
+    <script type="text/javascript">
+        var reachedFinalContinuation;
+        var setUp = function () {
+            reachedFinalContinuation = false;
+        };
+        var db_schema = {
+            fullTextCatalogs: [{
+                name: 'test',
+                lang: 'en',
+                indexes: [
+                    {
+                        storeName: 'article',
+                        keyPath: 'title',
+                        weight: 1.0
+                    }, {
+                        storeName: 'article',
+                        keyPath: 'body',
+                        weight: 0.5
+                    }]
+            }],
+            stores: [
+                {
+                    name: 'article',
+                    keyPath: 'title'
+                }]
+        };
+        var test_inject = function() {
+            var data = {
+                title: 'tiger',
+                body: 'This is a test for data injection. Only one tiger injected'
+            };
+            var db = new ydn.db.Storage('test_inject-2', db_schema);
+            var done;
+            var read_data, schema, keywords;
+            waitForCondition(
+                    // Condition
+                    function () {
+                        return done;
+                    },
+                    // Continuation
+                    function () {
+                        var store_names = schema.stores.map(function(x) {return x.name});
+                        assertArrayEquals('two object store', ['article', 'test'], store_names);
+                        assertObjectEquals('article tiger inserted as it is', data, read_data);
+                        assertNotEquals('index tiger exist', 0, keywords.length);
+                        reachedFinalContinuation = true;
+                        ydn.db.deleteDatabase(db.getName(), db.getType());
+                        db.close();
+                    },
+                    100, // interval
+                    1000); // maxTimeout
+            db.getSchema(function(x) {
+                schema = x;
+            });
+            db.clear();
+            db.put('article', data);
+            db.get('article', 'tiger').addBoth(function(x) {
+                read_data = x;
+            });
+            db.values('test').addBoth(function(x) {
+                console.log('test store', x);
+            });
+            db.keys('test', 'value', ydn.db.KeyRange.only('tiger')).addBoth(function(x) {
+                keywords = x;
+                console.log(x);
+                done = true;
+            });
+        };
+        var test_basic_query = function() {
+            var data = {
+                title: 'Tiger',
+                body: 'Tiger live in forest.'
+            };
+            var db = new ydn.db.Storage('test_basic_query-1', db_schema);
+            var done;
+            var read_data, schema, result, result2;
+            waitForCondition(
+                    // Condition
+                    function () {
+                        return done;
+                    },
+                    // Continuation
+                    function () {
+                        assertEquals('Tiger has a result 1', 1, result.length);
+                        assertEquals('has a result 2', 1, result2.length);
+                        assertEquals('correct result 1', 1, result.length);
+                        reachedFinalContinuation = true;
+                        ydn.db.deleteDatabase(db.getName(), db.getType());
+                        db.close();
+                    },
+                    100, // interval
+                    1000); // maxTimeout
+            db.clear();
+            db.put('article', data);
+            db.search('test', 'Tiger').addBoth(function(x) {
+                // console.log('Tiger', x)
+                result = x;
+            });
+            db.search('test', 'forest').addBoth(function(x) {
+                result2 = x;
+                // console.log('forest', x);
+                done = true;
+            });
+        };
+
+        var testCase = new goog.testing.ContinuationTestCase();
+        testCase.autoDiscoverTests();
+        G_testRunner.initialize(testCase);
+    </script>
+</body>
+</html>

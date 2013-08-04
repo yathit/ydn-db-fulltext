@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Store test</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../ydn-base/js/deps.js"></script>
+    <script src="../../../ydn-db/js/deps.js"></script>
+    <script src="../../../natural/js/deps.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/deps.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/normalizer_lowercase.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/normalizer_lowercase_nomark.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/categ_letters_numbers.js"></script>
+    <script type="text/javascript">
+        goog.require('ydn.debug');
+        goog.require('ydn.db.Storage');
+        goog.require('ydn.db.crud.Storage.text');
+        goog.require('ydn.db.text.QueryEngine');
+    </script>
+    <script type="text/javascript">
+        ydn.db.base.USE_HOOK = true;
+        // ydn.debug.log('ydn.db', 'finest');
+    </script>
+</head>
+<body>
+<script type="text/javascript">
+    goog.require('goog.testing.jsunit');
+
+    var catalog = ydn.db.schema.fulltext.Catalog.fromJson({
+        name: 'name',
+        lang: 'en',
+        indexes: [
+            {
+                storeName: 'animal',
+                keyPath: 'binomial',
+                weight: 1.0
+            }, {
+                storeName: 'animal',
+                keyPath: 'name',
+                weight: 0.5
+            }]
+    });
+    var test_analyze = function() {
+        var engine = new ydn.db.text.QueryEngine(catalog);
+        var record = {
+            name: 'Prairie Dog',
+            binomial: 'Cynomys ludovicianus'
+        };
+        var key = 'id1';
+        var words = engine.analyze('animal', key, record);
+        console.log(words);
+        assertEquals('length', 4, words.length);
+        assertEquals('value 0', 'cynomys', words[0].getValue());
+    };
+</script>
+</body>
+</html>

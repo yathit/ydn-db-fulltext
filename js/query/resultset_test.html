@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ResultSet test</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../ydn-base/js/deps.js"></script>
+    <script src="../../../ydn-db/js/deps.js"></script>
+    <script src="../../../natural/js/deps.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/deps.js"></script>
+    <script type="text/javascript">
+        goog.require('ydn.db.text.ResultSet');
+        goog.require('ydn.db.schema.fulltext.Catalog');
+    </script>
+</head>
+<body>
+    <script type="text/javascript">
+        goog.require('goog.testing.jsunit');
+        var ft_schema = ydn.db.schema.fulltext.Catalog.fromJson({
+            name: 'test',
+            lang: 'en',
+            indexes: [
+                {
+                    storeName: 'article',
+                    keyPath: 'title',
+                    weight: 1.0
+                }, {
+                    storeName: 'article',
+                    keyPath: 'body',
+                    weight: 0.5
+                }]
+        });
+        var query = new ydn.db.text.QueryToken('tiger', 'TGR', 0, 'article', 'title');
+
+        var test_add_result = function() {
+            var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
+            var results = [];
+            for (var i = 0; i < 4; i++) {
+              results[i] = {
+                  keyword: 'first' + i,
+                  value: 'first' + i,
+                  keyPath: 'title',
+                  score: 1,
+                  positions: [2],
+                  id: ['article', 'key' + i, 'first' + i]
+              }
+            }
+            rs.addResult(query, results);
+            assertEquals(4, rs.collect().length);
+        };
+        var test_add_results = function() {
+            var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
+            rs.addResult(query, [{
+                value: 'a',
+                score: 1,
+                keyPath: 'title',
+                positions: [2],
+                id: ['article', 'key1', 'a']
+            }, {
+                value: 'b',
+                score: 1,
+                keyPath: 'title',
+                positions: [2],
+                id: ['article', 'key1', 'b']
+            }, {
+                value: 'b',
+                score: 1,
+                positions: [2],
+                keyPath: 'title',
+                id: ['article', 'key1', 'b'] // repeat entry
+            }]);
+            assertEquals('repeat entry', 2, rs.collect().length);
+            rs.addResult(query, [{
+                value: 'b',
+                score: 1,
+                positions: [10],
+                keyPath: 'title',
+                id: ['article', 'key1', 'b'] // repeat entry
+            }, {
+                value: 'c',
+                score: 0.5,
+                positions: [3],
+                keyPath: 'title',
+                id: ['article', 'key1', 'c']
+            }]);
+            assertEquals('repeat entry in next', 3, rs.collect().length);
+
+            rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
+            rs.addResult(query, [{
+                value: 'a',
+                score: 1,
+                positions: [10],
+                keyPath: 'title',
+                id: ['article', 'key1', 'a']
+            }, {
+                value: 'a',
+                score: 1,
+                positions: [3],
+                keyPath: 'body',
+                id: ['article', 'key1', 'a'] // repeat entry
+            }]);
+            assertEquals('same entry with different path', 1, rs.collect().length);
+
+        };
+        var test_scoring = function() {
+            var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
+            rs.addResult(query, [{
+                value: 'tiger',
+                score: 1,
+                positions: [1],
+                keyPath: 'title',
+                id: ['article', 'key1', 'tiger']
+            }]);
+            var results = rs.collect();
+            assertEquals('basic score', 1, results[0].score);
+
+            rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
+            rs.addResult(query, [{
+                value: 'tiger',
+                score: 1,
+                positions: [1],
+                keyPath: 'body',
+                id: ['article', 'key2', 'tiger']
+            }]);
+            results = rs.collect();
+            assertEquals('weighted score', 0.5, results[0].score);
+        };
+        var test_scoring_composite = function() {
+            var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
+            rs.addResult(query, [{
+                value: 'tiger',
+                score: 1,
+                positions: [1],
+                keyPath: 'title',
+                id: ['article', 'key3', 'tiger']
+            }, {
+                value: 'tiger',
+                score: 1,
+                positions: [1],
+                keyPath: 'body',
+                id: ['article', 'key3', 'tiger']
+            }]);
+            var results = rs.collect();
+            assertEquals('number of result', 1, results.length);
+            assertEquals('compound score', 1.5, results[0].score);
+        };
+        var test_ranking = function() {
+            var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
+            rs.addResult(query, [{
+                value: 'tiger',
+                score: 1,
+                positions: [1],
+                keyPath: 'body',
+                id: ['article', 'key1', 'tiger']
+            }, {
+                value: 'tiger',
+                score: 1,
+                positions: [1],
+                keyPath: 'title',
+                id: ['article', 'key2', 'tiger']
+            }]);
+            var results = rs.collect();
+            assertEquals('number of result', 2, results.length);
+            assertEquals('compound score', 1, results[0].score);
+            assertEquals('compound score', 0.5, results[1].score);
+        };
+    </script>
+</body>
+</html>

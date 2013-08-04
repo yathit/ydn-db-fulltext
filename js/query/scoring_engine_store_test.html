@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Store test</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../ydn-base/js/deps.js"></script>
+    <script src="../../../ydn-db/js/deps.js"></script>
+    <script src="../../../natural/js/deps.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/deps.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/normalizer_lowercase.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/normalizer_lowercase_nomark.js"></script>
+    <script type="text/javascript" src="../normalizer/unicode/categ_letters_numbers.js"></script>
+    <script type="text/javascript">
+        goog.require('ydn.debug');
+        goog.require('ydn.db.Storage');
+        goog.require('ydn.db.crud.Storage.text');
+        goog.require('ydn.db.text.QueryEngine');
+        goog.require('goog.testing.ContinuationTestCase');
+        goog.require('goog.testing.jsunit');
+    </script>
+    <script type="text/javascript">
+        ydn.db.base.USE_HOOK = true;
+        // ydn.debug.log('ydn.db', 'finest');
+    </script>
+</head>
+<body>
+<script type="text/javascript">
+    var reachedFinalContinuation;
+    var setUp = function () {
+        reachedFinalContinuation = false;
+    };
+    var data = [{
+        id: 1, text: "first line of data"}, {
+        id: 2, text: "second line"}, {
+        id: 3, text: "third line of data"}, {
+        id: 4, text: "four in a row of data"}, {
+        id: 5, text: "high five"
+    }];
+    var db_schema = {
+        fullTextCatalogs: [{
+            name: 'corpus-index',
+            lang: 'en',
+            indexes: [
+                {
+                    storeName: 'corpus',
+                    keyPath: 'text'
+                }]
+        }],
+        stores: [
+            {
+                name: 'corpus',
+                keyPath: 'id'
+            }]
+    };
+    var test_one_index = function() {
+        var db = new ydn.db.Storage('test_one_index-1', db_schema);
+        var done;
+        var read_data, schema, keywords;
+        waitForCondition(
+                // Condition
+                function () {
+                    return done;
+                },
+                // Continuation
+                function () {
+                    assertObjectEquals('article t1 inserted as it is', data[0], read_data);
+                    assertEquals('has one index value', 1, keywords.length);
+                    assertEquals('index value', 'line', keywords[0].value);
+                    reachedFinalContinuation = true;
+                    ydn.db.deleteDatabase(db.getName(), db.getType());
+                    db.close();
+                },
+                100, // interval
+                1000); // maxTimeout
+        db.clear();
+        db.put('corpus', data[0]);
+        db.get('corpus', data[0].id).addBoth(function(x) {
+            read_data = x;
+        });
+        /*
+        db.values('corpus-index').addBoth(function(x) {
+            console.log(x);
+        });
+        */
+        db.values('corpus-index', 'value', ydn.db.KeyRange.only('line')).addBoth(function(x) {
+            keywords = x;
+            // console.log(x);
+            done = true;
+        });
+    };
+
+    var testCase = new goog.testing.ContinuationTestCase();
+    testCase.autoDiscoverTests();
+    G_testRunner.initialize(testCase);
+</script>
+</body>
+</html>
