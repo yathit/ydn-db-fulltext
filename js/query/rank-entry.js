@@ -56,17 +56,20 @@ goog.inherits(ydn.db.text.RankEntry, ydn.db.text.IndexEntry);
 
 /**
  * Merge resulting entry of same reference.
- * @param {ydn.db.text.RankEntry} entry
+ * @param {ydn.db.text.RankEntry} entry same entry.
  */
 ydn.db.text.RankEntry.prototype.merge = function(entry) {
   if (goog.DEBUG) {
     // merge only with same reference token.
     goog.asserts.assert(this.store_name == entry.store_name, 'store_name');
-    goog.asserts.assert(this.primary_key == entry.primary_key, 'primary_key');
-    goog.asserts.assert(this.value == entry.value, 'value');
+    goog.asserts.assert(ydn.db.cmp(this.primary_key, entry.primary_key) == 0,
+        'primary_key');
+    goog.asserts.assert(this.getValue() == entry.getValue(), 'value');
     goog.asserts.assert(entry.results.length == 1, 'must only have one result');
   }
-  if (this.key_path != entry.key_path) {
+  var result = entry.results[0];
+  var this_result = this.results[0];
+  if (this_result.query.getValue() != result.query.getValue()) {
     this.results.push(entry.results[0]);
   } // otherwise, same result - we ignore
 };

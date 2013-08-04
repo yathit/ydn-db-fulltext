@@ -33,20 +33,18 @@ goog.require('ydn.db.text.Token');
  * @param {string} value token value. The value is converted into lower case.
  * @param {string} keyword normalized value of original word.
  * @param {Array.<number>=} opt_positions score.
- * @param {number=} opt_score score.
  * @constructor
  * @extends {ydn.db.text.Token}
  * @struct
  */
 ydn.db.text.IndexEntry = function(store_name, key_path, primary_key, value,
-                                  keyword, opt_positions, opt_score) {
+                                  keyword, opt_positions) {
   goog.asserts.assertString(store_name, 'invalid store name "' +
       store_name + '"');
   goog.asserts.assert(goog.isDefAndNotNull(primary_key),
       'invalid primary_key "' + primary_key + '"');
   goog.asserts.assertString(value, 'invalid value "' + value + '"');
-  value = value.toLowerCase();
-  goog.base(this, value, keyword, opt_score);
+  goog.base(this, value, keyword);
   /**
    * @final
    * @type {string}
@@ -77,13 +75,15 @@ goog.inherits(ydn.db.text.IndexEntry, ydn.db.text.Token);
 
 
 /**
- * @return {number} element score.
+ * @return {number} computed score base on occurrence.
  */
 ydn.db.text.IndexEntry.prototype.getScore = function() {
-  if (isNaN(this.score)) {
-    this.score = this.compute();
+  var occboost = 0;
+  for (var i = 0; i < this.positions.length; ++i) {
+    occboost += (3.1415 - Math.log(1 + this.positions[i])) / 10;
   }
-  return this.score;
+  var countboost = Math.abs(Math.log(1 + this.positions.length)) / 10;
+  return 1 + occboost * 1.5 + countboost * 3;
 };
 
 
@@ -104,20 +104,6 @@ ydn.db.text.IndexEntry.prototype.encounter = function(count) {
 
 
 /**
- * Compute score base on word encounter.
- * @return {number} computed score.
- */
-ydn.db.text.IndexEntry.prototype.compute = function() {
-  var occboost = 0;
-  for (var i = 0; i < this.positions.length; ++i) {
-    occboost += (3.1415 - Math.log(1 + this.positions[i])) / 10;
-  }
-  var countboost = Math.abs(Math.log(1 + this.positions.length)) / 10;
-  return 1 + occboost * 1.5 + countboost * 3;
-};
-
-
-/**
  * @return {!Object} JSON to stored into the database.
  */
 ydn.db.text.IndexEntry.prototype.toJson = function() {
@@ -126,7 +112,8 @@ ydn.db.text.IndexEntry.prototype.toJson = function() {
   // is workaround.
   return {
     'keyword': this.keyword,
-    'value': this.value,
+    // to make case insensitive search possible
+    'value': this.value.toLowerCase(),
     'keyPath': this.key_path,
     'primaryKey': this.primary_key,
     'storeName': this.store_name,
@@ -141,7 +128,7 @@ ydn.db.text.IndexEntry.prototype.toJson = function() {
  * @override
  */
 ydn.db.text.IndexEntry.prototype.getId = function() {
-  var id = [this.store_name, this.primary_key, this.value.toLowerCase()];
+  var id = [this.store_name, this.primary_key, this.value];
   return ydn.db.text.Token.isArrayKeyPathSupported ?
       id : ydn.db.utils.encodeKey(id);
 };
@@ -164,18 +151,18 @@ ydn.db.text.IndexEntry.prototype.getKeyPath = function() {
 
 
 /**
- * @return {!Array.<number>} source primary key.
- */
-ydn.db.text.IndexEntry.prototype.getPositions = function() {
-  return this.positions.slice();
-};
-
-
-/**
  * @return {IDBKey} source primary key.
  */
 ydn.db.text.IndexEntry.prototype.getPrimaryKey = function() {
   return /** @type {IDBKey} */ (this.primary_key);
+};
+
+
+/**
+ * @return {string} return original value as key.
+ */
+ydn.db.text.Token.prototype.getKey = function() {
+  return this.value;
 };
 
 

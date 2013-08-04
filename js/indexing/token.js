@@ -32,12 +32,11 @@ goog.require('ydn.db.utils');
  * An object that associates a value and a numerical score
  * @param {string} value original word.
  * @param {string} keyword normalized value of original word.
- * @param {number=} opt_score score.
  * @constructor
  * @struct
  * @implements {ydn.db.schema.fulltext.Entry}
  */
-ydn.db.text.Token = function(value, keyword, opt_score) {
+ydn.db.text.Token = function(value, keyword) {
   // goog.asserts.assert(value.length >= keyword.length, 'wrong arg?');
   /**
    * @final
@@ -51,11 +50,6 @@ ydn.db.text.Token = function(value, keyword, opt_score) {
    * @protected
    */
   this.value = value;
-  /**
-   * @type {number}
-   * @protected
-   */
-  this.score = goog.isDefAndNotNull(opt_score) ? opt_score : NaN;
 };
 
 
@@ -76,20 +70,20 @@ ydn.db.text.Token.prototype.getValue = function() {
 
 
 /**
- * @return {number} source store name.
+ * By default each token score 1.
+ * @return {number} score of this token.
  */
 ydn.db.text.Token.prototype.getScore = function() {
-  return this.score;
+  return 1;
 };
 
 
 /**
- * Compare by score, then by id.
- * Note: this result 0 only if the same entry is compared.
+ * Compare by score. Comparing same token returns 0.
  * @param {ydn.db.text.Token} a entry a.
  * @param {ydn.db.text.Token} b entry b.
- * @return {number} return 1 if score of entry a is smaller than that of b, -1
- * if score of entry b is smaller than a, otherwise compare by id.
+ * @return {number} return 0 if same token, 1 if score of entry a is smaller
+ * than that of b, -1 if score of entry b is smaller than a.
  */
 ydn.db.text.Token.cmp = function(a, b) {
   if (ydn.db.cmp(a.getId(), b.getId()) == 0) {

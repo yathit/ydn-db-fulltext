@@ -45,17 +45,8 @@ ydn.db.text.QueryToken = function(value, keyword, position) {
    * @type {ydn.db.text.ResultSet}
    */
   this.resultset = null;
-  this.score = 1;
 };
 goog.inherits(ydn.db.text.QueryToken, ydn.db.text.Token);
-
-
-/**
- * @return {number} element score.
- */
-ydn.db.text.QueryToken.prototype.getScore = function() {
-  return this.score;
-};
 
 
 /**

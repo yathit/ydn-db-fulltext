@@ -34,7 +34,6 @@ goog.require('ydn.db.text.IndexEntry');
  * @param {string} value inverted index schema.
  * @param {string} keyword normalized value of original word.
  * @param {Array.<number>=} opt_positions score.
- * @param {number=} opt_score score.
  * @constructor
  * @extends {ydn.db.text.IndexEntry}
  * @struct
@@ -42,7 +41,7 @@ goog.require('ydn.db.text.IndexEntry');
 ydn.db.text.ResultEntry = function(query, store_name, key_path, primary_key,
     value, keyword, opt_positions, opt_score) {
   goog.base(this, store_name, key_path, primary_key, value,
-      keyword, opt_positions, opt_score);
+      keyword, opt_positions);
   /**
    * @type {ydn.db.text.QueryToken}
    */
