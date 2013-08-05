@@ -152,6 +152,14 @@ ydn.db.text.IndexEntry.prototype.toJson = function() {
 
 
 /**
+ * @return {!Array.<number>}
+ */
+ydn.db.text.IndexEntry.prototype.getLoc = function() {
+  return this.loc_.slice();
+};
+
+
+/**
  * @override
  */
 ydn.db.text.IndexEntry.prototype.getId = function() {

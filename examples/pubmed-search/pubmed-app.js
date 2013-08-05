@@ -108,7 +108,7 @@ PubMedApp.prototype.renderResult = function(arr) {
       for (var i = entry.loc.length - 1; i >= 0; i--) {
         var loc = entry.loc[i];
         html = html.substr(0, loc) + '<span class="highlighted">' +
-            html.substring(loc, loc + x.word.length) + '</span>' +
+            html.substring(loc, loc + entry.value.length) + '</span>' +
             html.substr(loc + 1);
       }
       div.innerHTML = html;

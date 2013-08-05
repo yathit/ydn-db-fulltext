@@ -146,12 +146,18 @@ ydn.db.text.RankEntry.prototype.toJson = function() {
   // ideally, we want to use composite key ['storeName', 'primaryKey', 'value']
   // but IE10 does not support composite key, so encoded key, as used here
   // is workaround.
-  var entry = goog.base(this, 'toJson');
-  entry['value'] = this.value;
-  entry['primaryKey'] = this.primary_key;
-  entry['storeName'] = this.store_name;
-  entry['score'] = this.getScore();
-  // console.log(entry);
+  var entry = {
+    'value': this.value,
+    'primaryKey': this.primary_key,
+    'keyPath': this.key_path,
+    'storeName': this.store_name,
+    'keyword': this.keyword,
+    'score': this.getScore(),
+    'tokens': []
+  };
+  for (var i = 0; i < this.results.length; i++) {
+    entry.tokens[i] = this.results[i].toJson();
+  }
   return entry;
 };
 

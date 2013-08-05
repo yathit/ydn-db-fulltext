@@ -77,6 +77,7 @@ ydn.db.text.ResultEntry.prototype.getScore = function() {
  * @return {ydn.db.text.ResultEntry}
  */
 ydn.db.text.ResultEntry.fromJson = function(query, json) {
+  // console.log(json);
   var id = json['id'];
   id = goog.isString(id) ? ydn.db.utils.decodeKey(id) : id;
   var keyword = json['keyword'];
@@ -93,6 +94,18 @@ ydn.db.text.ResultEntry.fromJson = function(query, json) {
   var value = id[2];
   return new ydn.db.text.ResultEntry(query, store_name, key_path, p_key, value,
       keyword, positions);
+};
+
+
+/**
+ * @return {!Object} JSON to stored into the database.
+ */
+ydn.db.text.ResultEntry.prototype.toJson = function() {
+  return {
+    'keyPath': this.key_path,
+    'value': this.value,
+    'loc': this.getLoc()
+  };
 };
 
 

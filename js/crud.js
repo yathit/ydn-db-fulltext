@@ -82,6 +82,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
             arr.length + ' objects');
       }
       rq.await(function(keys, is_error, cb) {
+        var idx_st_name = ft_schema.getName();
         for (var i = 0; i < keys.length; i++) {
           var doc = /** @type {!Object} */ (arr[i]);
           var p_key = /** @type {IDBKey} */ (keys[i]);
@@ -93,13 +94,16 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
             window.console.log(json);
           }
           ft_schema.engine.analyzer.addTotalDoc(json.length);
-          me.getCoreOperator().dumpInternal(ft_schema.getName(), json).addBoth(
-              function(x) {
-                if (ydn.db.crud.Storage.text.DEBUG) {
-                  window.console.log('index done', x);
-                }
-                cb(keys, is_error);
-              });
+          var req = me.getCoreOperator().dumpInternal(idx_st_name, json);
+          if (i == keys.length - 1) {
+            req.addBoth(
+                function(x) {
+                  if (ydn.db.crud.Storage.text.DEBUG) {
+                    window.console.log('index done', x);
+                  }
+                  cb(keys, is_error);
+                });
+          }
         }
       });
     }

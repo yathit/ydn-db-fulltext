@@ -41,17 +41,14 @@ ydn.db.text.QueryToken = function(total_doc, value, keyword, position) {
    * @type {number}
    */
   this.total_doc = total_doc;
+  goog.asserts.assert(goog.isNumber(position) && !isNaN(position),
+      'position ' + value);
   /**
    * Location of the keyword in the document or query string.
    * @final
    * @type {number}
    */
   this.position = position;
-  /**
-   * @type {ydn.db.text.ResultSet}
-   * @private
-   */
-  this.resultse = null;
 };
 goog.inherits(ydn.db.text.QueryToken, ydn.db.text.Token);
 
