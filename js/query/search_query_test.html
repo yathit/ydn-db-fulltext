@@ -59,7 +59,7 @@
                 title: 'tiger',
                 body: 'This is a test for data injection. Only one tiger injected'
             };
-            var db = new ydn.db.Storage('test_inject-2', db_schema);
+            var db = new ydn.db.Storage('test_inject-2', db_schema, {policy: 'atomic'});
             var done;
             var read_data, schema, keywords;
             waitForCondition(
@@ -79,20 +79,22 @@
                     },
                     100, // interval
                     1000); // maxTimeout
+            db.clear();
             db.getSchema(function(x) {
                 schema = x;
             });
-            db.clear();
             db.put('article', data);
             db.get('article', 'tiger').addBoth(function(x) {
                 read_data = x;
             });
+            /*
             db.values('test').addBoth(function(x) {
                 console.log('test store', x);
             });
+            */
             db.keys('test', 'value', ydn.db.KeyRange.only('tiger')).addBoth(function(x) {
                 keywords = x;
-                console.log(x);
+                // console.log(x);
                 done = true;
             });
         };
@@ -121,15 +123,17 @@
                     100, // interval
                     1000); // maxTimeout
             db.clear();
-            db.put('article', data);
-            db.search('test', 'Tiger').addBoth(function(x) {
-                // console.log('Tiger', x)
-                result = x;
-            });
-            db.search('test', 'forest').addBoth(function(x) {
-                result2 = x;
-                // console.log('forest', x);
-                done = true;
+            db.put('article', data).addBoth(function() {
+                db.search('test', 'Tiger').addBoth(function(x) {
+                    // console.log('Tiger', x)
+                    result = x;
+                });
+                db.search('test', 'forest').addBoth(function(x) {
+                    result2 = x;
+                    // console.log('forest', x);
+                    done = true;
+                });
+
             });
         };
 

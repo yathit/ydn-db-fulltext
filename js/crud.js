@@ -67,7 +67,10 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
         }
         ft_schema.engine.analyzer.addTotalDoc(1);
         me.getCoreOperator().dumpInternal(ft_schema.getName(), json).addBoth(
-            function() {
+            function(x) {
+              if (ydn.db.crud.Storage.text.DEBUG) {
+                window.console.log('index done', x);
+              }
               cb(key, is_error);
             });
       }, this);
@@ -91,7 +94,10 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           }
           ft_schema.engine.analyzer.addTotalDoc(json.length);
           me.getCoreOperator().dumpInternal(ft_schema.getName(), json).addBoth(
-              function() {
+              function(x) {
+                if (ydn.db.crud.Storage.text.DEBUG) {
+                  window.console.log('index done', x);
+                }
                 cb(keys, is_error);
               });
         }
@@ -127,6 +133,9 @@ ydn.db.crud.Storage.prototype.search = function(name, query, opt_limit,
         }, function(e) {
           throw e;
         }, this);
+  }
+  if (ydn.db.crud.Storage.text.DEBUG) {
+    window.console.log('query', name, query);
   }
   var result = ft_schema.engine.query(name, query, opt_limit, opt_threshold);
   if (!result) {
