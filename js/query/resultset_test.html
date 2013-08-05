@@ -162,6 +162,7 @@
                 id: ['article', 'key2', 'tiger']
             }]);
             var results = rs.collect();
+            console.log(results);
             assertEquals('number of result', 2, results.length);
             assertEquals('compound score', 1, results[0].score);
             assertEquals('compound score', 0.5, results[1].score);

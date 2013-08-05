@@ -39,7 +39,7 @@ goog.require('ydn.db.text.IndexEntry');
  * @struct
  */
 ydn.db.text.ResultEntry = function(query, store_name, key_path, primary_key,
-    value, keyword, opt_positions, opt_score) {
+    value, keyword, opt_positions) {
   goog.base(this, store_name, key_path, primary_key, value,
       keyword, opt_positions);
   /**
@@ -56,7 +56,8 @@ goog.inherits(ydn.db.text.ResultEntry, ydn.db.text.IndexEntry);
 ydn.db.text.ResultEntry.prototype.getScore = function() {
   var similarity = natural.distance.Dice.compare(this.query.getValue(),
       this.value);
-  return similarity * this.score;
+  var score = goog.base(this, 'getScore');
+  return similarity * score;
 };
 
 
@@ -68,18 +69,19 @@ ydn.db.text.ResultEntry.prototype.getScore = function() {
 ydn.db.text.ResultEntry.fromJson = function(query, json) {
   var id = json['id'];
   var keyword = json['keyword'];
-  var score = json['score'];
-  var positions = json['positions'];
+  var positions = json['loc'];
   var key_path = json['keyPath'];
-  var value = json['value'];
   goog.asserts.assertString(id[0], 'Invalid key ' +
       JSON.stringify(id) + ' at 0.');
   goog.asserts.assertString(id[2], 'Invalid key ' +
       JSON.stringify(id) + ' at 1.');
   goog.asserts.assert(goog.isDefAndNotNull(id[1]), 'Invalid key ' +
       JSON.stringify(id) + ' at 2.');
-  return new ydn.db.text.ResultEntry(query, id[0], key_path, id[1], value,
-      keyword, positions, score);
+  var store_name = id[0];
+  var p_key = id[1];
+  var value = id[2];
+  return new ydn.db.text.ResultEntry(query, store_name, key_path, p_key, value,
+      keyword, positions);
 };
 
 

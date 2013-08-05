@@ -66,10 +66,10 @@ ydn.db.text.IndexEntry = function(store_name, key_path, primary_key, value,
   /**
    * Word count that this keyword encounter in the document.
    * @final
-   * @protected
+   * @private
    * @type {!Array.<number>}
    */
-  this.positions = opt_positions || [];
+  this.loc_ = opt_positions || [];
 };
 goog.inherits(ydn.db.text.IndexEntry, ydn.db.text.Token);
 
@@ -79,10 +79,10 @@ goog.inherits(ydn.db.text.IndexEntry, ydn.db.text.Token);
  */
 ydn.db.text.IndexEntry.prototype.getScore = function() {
   var occboost = 0;
-  for (var i = 0; i < this.positions.length; ++i) {
-    occboost += (3.1415 - Math.log(1 + this.positions[i])) / 10;
+  for (var i = 0; i < this.loc_.length; ++i) {
+    occboost += (3.1415 - Math.log(1 + this.loc_[i])) / 10;
   }
-  var countboost = Math.abs(Math.log(1 + this.positions.length)) / 10;
+  var countboost = Math.abs(Math.log(1 + this.loc_.length)) / 10;
   return 1 + occboost * 1.5 + countboost * 3;
 };
 
@@ -99,7 +99,7 @@ ydn.db.text.IndexEntry.levenshtein = new natural.distance.Levenshtein();
  * @param {number} count current word count.
  */
 ydn.db.text.IndexEntry.prototype.encounter = function(count) {
-  this.positions.push(count);
+  this.loc_.push(count);
 };
 
 
@@ -112,14 +112,9 @@ ydn.db.text.IndexEntry.prototype.toJson = function() {
   // is workaround.
   return {
     'keyword': this.keyword,
-    // to make case insensitive search possible
-    'value': this.value.toLowerCase(),
     'keyPath': this.key_path,
-    'primaryKey': this.primary_key,
-    'storeName': this.store_name,
-    'score': this.getScore(),
     'id': this.getId(), // store name and primary key
-    'positions': this.positions // .slice() // no need defensive
+    'loc': this.loc_ // .slice() // no need defensive
   };
 };
 

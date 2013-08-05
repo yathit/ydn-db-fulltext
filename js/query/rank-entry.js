@@ -36,7 +36,7 @@ goog.require('ydn.db.text.IndexEntry');
 ydn.db.text.RankEntry = function(catalog, entry) {
   goog.base(this, entry.getStoreName(), entry.getKeyPath(),
       entry.getPrimaryKey(), entry.getValue(), entry.getKeyword(),
-      [], NaN);
+      []);
   /**
    * @protected
    * @final
@@ -69,7 +69,7 @@ ydn.db.text.RankEntry.prototype.merge = function(entry) {
   }
   var result = entry.results[0];
   var this_result = this.results[0];
-  if (this_result.query.getValue() != result.query.getValue()) {
+  if (this_result.key_path != result.key_path) {
     this.results.push(entry.results[0]);
   } // otherwise, same result - we ignore
 };
@@ -87,11 +87,29 @@ ydn.db.text.RankEntry.prototype.getScore = function() {
     goog.asserts.assertObject(index, 'Index for ' + entry.getStoreName() +
         ':' + entry.getKeyPath() + ' not found.');
     var s1 = entry.getScore();
-    // console.log(entry.toString(), s1);
-    score += s1 * index.getWeight();
+    var w = index.getWeight();
+    console.log(entry.toString(), s1, w);
+    score += s1 * w;
   }
   return score;
 };
+
+
+/**
+ * @return {!Object} JSON to stored into the database.
+ */
+ydn.db.text.RankEntry.prototype.toJson = function() {
+  // ideally, we want to use composite key ['storeName', 'primaryKey', 'value']
+  // but IE10 does not support composite key, so encoded key, as used here
+  // is workaround.
+  var entry = goog.base(this, 'toJson');
+  entry['value'] = this.value;
+  entry['primaryKey'] = this.primary_key;
+  entry['storeName'] = this.store_name;
+  entry['score'] = this.getScore();
+  return entry;
+};
+
 
 
 if (goog.DEBUG) {
