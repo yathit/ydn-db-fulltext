@@ -25,13 +25,13 @@ var PubMedApp = function() {
         keyPath: 'id'
       }]
   };
-  this.db = new ydn.db.Storage('pubmed', db_schema);
+  this.db = new ydn.db.Storage('pubmed-2', db_schema);
   var btn_search = document.getElementById('search');
   btn_search.onclick = this.handleSearch.bind(this);
   var input = document.getElementById('search_input');
   input.onkeyup = this.handleInputChanged.bind(this);
 
-  this.stringency = 0.6;
+  this.stringency = 0.5;
   // this.sel_stc = document.getElementById("sel_stc");
   // this.sel_stc.onchange = this.handleStringencyChanged(this);
 };
