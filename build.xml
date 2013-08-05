@@ -104,6 +104,11 @@
               tofile="${out.dir}/ydn.db-dev-text.js"/>
         <copy file="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}.map"
               tofile="${out.dir}/ydn.db-dev-text.js.map"/>
+        <copy todir="${out.dir}/../demo/ydn.db-text/pubmed-search/">
+            <fileset dir="${ydn-db-fulltext.dir}/examples/pubmed-search">
+                <exclude name="*.html"/>
+            </fileset>
+        </copy>
     </target>
 
     <target name="gen-all-test-js" description="generate all test js">

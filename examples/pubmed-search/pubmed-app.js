@@ -25,7 +25,7 @@ var PubMedApp = function() {
         keyPath: 'id'
       }]
   };
-  this.db = new ydn.db.Storage('pubmed-2', db_schema);
+  this.db = new ydn.db.Storage('pubmed', db_schema);
   var btn_search = document.getElementById('search');
   btn_search.onclick = this.handleSearch.bind(this);
   var input = document.getElementById('search_input');
@@ -112,7 +112,9 @@ PubMedApp.prototype.showStatistic = function(cb, scope) {
   this.db.count('pubmed-index').done(function(cnt) {
     this.updateIndexCount(cnt);
     if (cb) {
-      cb.call(scope, cnt);
+      setTimeout(function() {
+        cb.call(scope, cnt);
+      }, 100);
     }
   }, this);
 };
@@ -160,7 +162,7 @@ PubMedApp.prototype.pubmedFetch = function(ids, cb, scope) {
   var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&rettype=xml&id=' + ids.join(',');
   App.get(url, function(json) {
     // console.log(json);
-     window.ans = json;
+    window.ans = json;
     var articles = [];
     if (json.PubmedArticleSet) {
       var arts = json.PubmedArticleSet[1].PubmedArticle;
