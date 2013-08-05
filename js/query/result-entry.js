@@ -68,6 +68,7 @@ ydn.db.text.ResultEntry.prototype.getScore = function() {
  */
 ydn.db.text.ResultEntry.fromJson = function(query, json) {
   var id = json['id'];
+  id = goog.isString(id) ? ydn.db.utils.decodeKey(id) : id;
   var keyword = json['keyword'];
   var positions = json['loc'];
   var key_path = json['keyPath'];

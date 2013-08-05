@@ -110,9 +110,14 @@ ydn.db.text.IndexEntry.prototype.toJson = function() {
   // ideally, we want to use composite key ['storeName', 'primaryKey', 'value']
   // but IE10 does not support composite key, so encoded key, as used here
   // is workaround.
+  // The reason we need to index both keyword and value is that, not all value
+  // exist normalized form of keyword.
+  // value is changed to lower case, so that searching is more sensitive.
+  // Also note that, actual value in id is case sensative.
   return {
     'keyword': this.keyword,
     'keyPath': this.key_path,
+    'value': this.value.toLowerCase(),
     'id': this.getId(), // store name and primary key
     'loc': this.loc_ // .slice() // no need defensive
   };
