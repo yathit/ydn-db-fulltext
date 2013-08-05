@@ -29,7 +29,7 @@
                 }, {
                     storeName: 'article',
                     keyPath: 'body',
-                    weight: 0.5
+                    weight: 0.6
                 }]
         });
         var query = new ydn.db.text.QueryToken('tiger', 'TGR', 0, 'article', 'title');
@@ -125,7 +125,7 @@
                 id: ['article', 'key2', 'tiger']
             }]);
             results = rs.collect();
-            assertEquals('weighted score', 0.5, results[0].score);
+            assertEquals('weighted score', 0.6, results[0].score);
         };
         var test_scoring_composite = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
@@ -144,19 +144,17 @@
             }]);
             var results = rs.collect();
             assertEquals('number of result', 1, results.length);
-            assertEquals('compound score', 1.5, results[0].score);
+            assertEquals('compound score', 1.6, results[0].score);
         };
-        var test_ranking = function() {
+        var test_ranking_multiple_index = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
             rs.addResult(query, [{
                 value: 'tiger',
-                score: 1,
                 positions: [1],
                 keyPath: 'body',
                 id: ['article', 'key1', 'tiger']
             }, {
                 value: 'tiger',
-                score: 1,
                 positions: [1],
                 keyPath: 'title',
                 id: ['article', 'key2', 'tiger']
@@ -165,7 +163,28 @@
             console.log(results);
             assertEquals('number of result', 2, results.length);
             assertEquals('compound score', 1, results[0].score);
-            assertEquals('compound score', 0.5, results[1].score);
+            assertEquals('compound score', 0.6, results[1].score);
+        };
+        var test_ranking_multiple_cases = function() {
+            var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
+            rs.addResult(query, [{
+                keyword: 'TGR',
+                value: 'tiger',
+                loc: [10],
+                keyPath: 'title',
+                id: ['article', 'key1', 'tiger']
+            }, {
+                keyword: 'TGR',
+                value: 'tiger',
+                loc: [1],
+                keyPath: 'title',
+                id: ['article', 'key1', 'Tiger']
+            }]);
+            var results = rs.collect();
+            console.log(results);
+            assertEquals('number of result', 1, results.length);
+            assertTrue('score more than one', results[0].score > 1);
+            assertTrue('score less than two score', results[0].score < 2);
         };
     </script>
 </body>

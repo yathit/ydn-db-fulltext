@@ -21,8 +21,9 @@
 
 // namespace for full-text search index
 goog.provide('ydn.db.crud.Storage.text');
-goog.require('ydn.db.text.QueryEngine');
 goog.require('ydn.db.crud.Storage');
+goog.require('ydn.db.text.QueryEngine');
+goog.require('ydn.debug.error.InvalidOperationException');
 
 
 /**
@@ -33,14 +34,22 @@ ydn.db.crud.Storage.text.DEBUG = false;
 
 /**
  * Add full text indexer
- * @param {ydn.db.schema.Store} store store object.
- * @param {ydn.db.schema.fulltext.Catalog} ft_schema full text schema.
+ * @param {!ydn.db.schema.Store} store store object.
+ * @param {!ydn.db.schema.fulltext.Catalog} ft_schema full text schema.
  * @protected
  */
 ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
   var me = this;
 
-  ft_schema.engine = new ydn.db.text.QueryEngine(ft_schema);
+  var sources = ft_schema.getSourceNames();
+  this.getCoreOperator().countInternal(sources).addCallbacks(
+      function(cnts) {
+        var total = cnts.reduce(function(p, x) {return p + x;}, 0);
+        ft_schema.engine = new ydn.db.text.QueryEngine(total, ft_schema);
+      }, function(e) {
+        throw e;
+      }, this);
+
   /**
    * @param {!ydn.db.Request} rq
    * @param {goog.array.ArrayLike} args
@@ -103,11 +112,14 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
  */
 ydn.db.crud.Storage.prototype.search = function(name, query, opt_limit,
                                                 opt_threshold) {
-
   var ft_schema = this.schema.getFullTextSchema(name);
   if (!ft_schema) {
     throw new ydn.debug.error.ArgumentException('full text index catalog "' +
         name + '" not found.');
+  }
+  if (!ft_schema.engine) {
+    throw new ydn.debug.error.InvalidOperationException('engine not ready,' +
+        ' while counting total number of records');
   }
   var result = ft_schema.engine.query(name, query, opt_limit, opt_threshold);
   if (!result) {

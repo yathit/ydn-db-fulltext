@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @fileoverview Query entry.
+ * @fileoverview Result entry.
  *
  * @author kyawtun@yathit.com (Kyaw Tun)
  */
@@ -51,13 +51,19 @@ goog.inherits(ydn.db.text.ResultEntry, ydn.db.text.IndexEntry);
 
 
 /**
+ * Inverse document frequency.
+ * @return {number} return inverse document frequency.
+ */
+ydn.db.text.ResultEntry.prototype.invDocFreq = function() {
+  return Math.log(this.query.total_doc / (1 + this.freq()));
+};
+
+
+/**
  * @inheritDoc
  */
 ydn.db.text.ResultEntry.prototype.getScore = function() {
-  var similarity = natural.distance.Dice.compare(this.query.getValue(),
-      this.value);
-  var score = goog.base(this, 'getScore');
-  return similarity * score;
+  return this.termFreq() * this.invDocFreq();
 };
 
 

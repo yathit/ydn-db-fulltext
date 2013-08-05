@@ -22,15 +22,16 @@ goog.require('ydn.db.text.Analyzer');
 
 
 /**
- * @param {ydn.db.schema.fulltext.Catalog} schema full text search schema.
+ * @param {number} total_doc the total number of documents.
+ * @param {!ydn.db.schema.fulltext.Catalog} schema full text search schema.
  * @constructor
  * @implements {ydn.db.schema.fulltext.Engine}
  */
-ydn.db.text.QueryEngine = function(schema) {
+ydn.db.text.QueryEngine = function(total_doc, schema) {
   /**
    * @final
    * @protected
-   * @type {ydn.db.schema.fulltext.Catalog}
+   * @type {!ydn.db.schema.fulltext.Catalog}
    */
   this.schema = schema;
   /**
@@ -38,7 +39,7 @@ ydn.db.text.QueryEngine = function(schema) {
    * @protected
    * @type {ydn.db.text.Analyzer}
    */
-  this.analyzer = new ydn.db.text.Analyzer(schema);
+  this.analyzer = new ydn.db.text.Analyzer(total_doc, schema);
 };
 
 

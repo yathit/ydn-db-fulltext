@@ -30,28 +30,29 @@ goog.require('ydn.db.text.ResultEntry');
  * Result set.
  *
  * @constructor
- * @param {ydn.db.schema.fulltext.Catalog} ft_schema full text schema.
- * @param {Array.<ydn.db.text.QueryToken>} query_tokens query tokens.
+ * @param {!ydn.db.schema.fulltext.Catalog} ft_schema full text schema.
+ * @param {!Array.<!ydn.db.text.QueryToken>} query_tokens query tokens.
  * @param {number} limit Maximum number of satisfactory results.
  * @param {number} threshold Threshold score of a result to consider as
  * satisfactory.
  * @implements {ydn.db.schema.fulltext.ResultSet}
  * @struct
  */
-ydn.db.text.ResultSet = function(ft_schema, query_tokens, limit, threshold) {
+ydn.db.text.ResultSet = function(ft_schema, query_tokens,
+                                 limit, threshold) {
   /**
    * @protected
-   * @type {ydn.db.schema.fulltext.Catalog}
+   * @type {!ydn.db.schema.fulltext.Catalog}
    */
   this.catalog = ft_schema;
   /**
    * @protected
-   * @type {Array.<ydn.db.text.QueryToken>}
+   * @type {!Array.<!ydn.db.text.QueryToken>}
    */
-  this.query_tokens = query_tokens || [];
+  this.query_tokens = query_tokens;
   /**
    * @protected
-   * @type {Array.<ydn.db.text.ResultEntry>}
+   * @type {!Array.<!ydn.db.text.ResultEntry>}
    */
   this.results = [];
   /**
@@ -72,9 +73,6 @@ ydn.db.text.ResultSet = function(ft_schema, query_tokens, limit, threshold) {
    * @private
    */
   this.lap_ = 0;
-  for (var i = 0; i < this.query_tokens.length; i++) {
-    this.query_tokens[i].resultset = this;
-  }
 };
 
 
@@ -155,7 +153,8 @@ ydn.db.text.ResultSet.prototype.collect = function() {
   var arr = [];
   for (var i = 0; i < this.results.length; i++) {
     var entry = new ydn.db.text.RankEntry(this.catalog, this.results[i]);
-    var index = goog.array.binarySearch(arr, entry, ydn.db.text.Token.cmp);
+    var index = goog.array.binarySearch(arr, entry, ydn.db.text.RankEntry.cmp);
+    // console.log(entry, index, arr);
     if (index < 0) {
       goog.array.insertAt(arr, entry, -(index + 1));
     } else {
@@ -163,6 +162,13 @@ ydn.db.text.ResultSet.prototype.collect = function() {
       existing_entry.merge(entry);
     }
   }
+  /*
+  for (var i = 0; i < arr.length; i++) {
+    for (var j = 0; j < arr[i].count(); j++) {
+      var entry = arr[i].entry(j);
+    }
+  }
+  */
   return arr.map(function(x) {
     return x.toJson();
   });

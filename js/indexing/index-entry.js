@@ -75,23 +75,27 @@ goog.inherits(ydn.db.text.IndexEntry, ydn.db.text.Token);
 
 
 /**
- * @return {number} computed score base on occurrence.
- */
-ydn.db.text.IndexEntry.prototype.getScore = function() {
-  var occboost = 0;
-  for (var i = 0; i < this.loc_.length; ++i) {
-    occboost += (3.1415 - Math.log(1 + this.loc_[i])) / 10;
-  }
-  var countboost = Math.abs(Math.log(1 + this.loc_.length)) / 10;
-  return 1 + occboost * 1.5 + countboost * 3;
-};
-
-
-/**
  * @const
  * @type {natural.distance.Levenshtein}
  */
 ydn.db.text.IndexEntry.levenshtein = new natural.distance.Levenshtein();
+
+
+/**
+ * @return {number} number of occurance.
+ */
+ydn.db.text.IndexEntry.prototype.freq = function() {
+  return this.loc_.length;
+};
+
+
+/**
+ * Logarithmically scaled frequency.
+ * @return {number} return  term frequency.
+ */
+ydn.db.text.IndexEntry.prototype.termFreq = function() {
+  return Math.log(this.loc_.length + 1);
+};
 
 
 /**

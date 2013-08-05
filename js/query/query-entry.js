@@ -26,6 +26,7 @@ goog.require('ydn.db.text.Token');
 
 /**
  * Entry for querying.
+ * @param {number} total_doc the total number of documents.
  * @param {string} value original word.
  * @param {string} keyword normalized value of original word.
  * @param {number} position source key path.
@@ -33,8 +34,13 @@ goog.require('ydn.db.text.Token');
  * @extends {ydn.db.text.Token}
  * @struct
  */
-ydn.db.text.QueryToken = function(value, keyword, position) {
+ydn.db.text.QueryToken = function(total_doc, value, keyword, position) {
   goog.base(this, value, keyword);
+  /**
+   * @final
+   * @type {number}
+   */
+  this.total_doc = total_doc;
   /**
    * Location of the keyword in the document or query string.
    * @final
@@ -43,8 +49,9 @@ ydn.db.text.QueryToken = function(value, keyword, position) {
   this.position = position;
   /**
    * @type {ydn.db.text.ResultSet}
+   * @private
    */
-  this.resultset = null;
+  this.resultse = null;
 };
 goog.inherits(ydn.db.text.QueryToken, ydn.db.text.Token);
 

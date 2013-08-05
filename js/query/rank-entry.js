@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @fileoverview Query entry.
+ * @fileoverview Output rank entry.
  *
  * @author kyawtun@yathit.com (Kyaw Tun)
  */
@@ -26,7 +26,7 @@ goog.require('ydn.db.text.IndexEntry');
 
 
 /**
- * Output result entry ranking result.
+ * Output rank entry is consolidation of resulting inverted entry.
  * @param {ydn.db.schema.fulltext.Catalog} catalog original entry.
  * @param {ydn.db.text.ResultEntry} entry original entry.
  * @constructor
@@ -55,6 +55,24 @@ goog.inherits(ydn.db.text.RankEntry, ydn.db.text.IndexEntry);
 
 
 /**
+ * Number of results.
+ * @return {number}
+ */
+ydn.db.text.RankEntry.prototype.count = function() {
+  return this.results.length;
+};
+
+
+/**
+ * @param {number} idx index of result entry.
+ * @return {ydn.db.text.ResultEntry} entry at idx.
+ */
+ydn.db.text.RankEntry.prototype.entry = function(idx) {
+  return this.results[idx];
+};
+
+
+/**
  * Merge resulting entry of same reference.
  * @param {ydn.db.text.RankEntry} entry same entry.
  */
@@ -62,16 +80,19 @@ ydn.db.text.RankEntry.prototype.merge = function(entry) {
   if (goog.DEBUG) {
     // merge only with same reference token.
     goog.asserts.assert(this.store_name == entry.store_name, 'store_name');
-    goog.asserts.assert(ydn.db.cmp(this.primary_key, entry.primary_key) == 0,
-        'primary_key');
-    goog.asserts.assert(this.getValue() == entry.getValue(), 'value');
+    goog.asserts.assert(this.primary_key == entry.primary_key, 'primary_key');
+    goog.asserts.assert(this.getValue().toLowerCase() ==
+        entry.getValue().toLowerCase(), 'value');
     goog.asserts.assert(entry.results.length == 1, 'must only have one result');
   }
   var result = entry.results[0];
-  var this_result = this.results[0];
-  if (this_result.key_path != result.key_path) {
-    this.results.push(entry.results[0]);
-  } // otherwise, same result - we ignore
+  for (var i = 0; i < this.results.length; i++) {
+    if (this.results[i].key_path == result.key_path &&
+        this.results[i].value == result.value) {
+      return; // already in the result list
+    }
+  }
+  this.results.push(result);
 };
 
 
@@ -92,6 +113,29 @@ ydn.db.text.RankEntry.prototype.getScore = function() {
     score += s1 * w;
   }
   return score;
+};
+
+
+/**
+ * Compare by score. Comparing same token returns 0.
+ * The different from @see ydn.db.text.Token.cmp is that, here id comparison is
+ * case insensative.
+ * @param {ydn.db.text.RankEntry} a entry a.
+ * @param {ydn.db.text.RankEntry} b entry b.
+ * @return {number} return 0 if same token, 1 if score of entry a is smaller
+ * than that of b, -1 if score of entry b is smaller than a.
+ */
+ydn.db.text.RankEntry.cmp = function(a, b) {
+  var similar = a.getPrimaryKey() == b.getPrimaryKey() &&
+      a.value.toLowerCase() == b.value.toLowerCase();
+  // console.log('cmp', similar, a, b);
+  if (similar) {
+    return 0;
+  } else {
+    var a_score = a.getScore();
+    var b_score = b.getScore();
+    return a_score > b_score ? -1 : b_score > a_score ? 1 : 1;
+  }
 };
 
 

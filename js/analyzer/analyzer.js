@@ -22,22 +22,29 @@
 
 
 goog.provide('ydn.db.text.Analyzer');
-goog.require('ydn.db.text.Normalizer');
 goog.require('fullproof.normalizer.english');
 goog.require('goog.array');
 goog.require('net.kornr.unicode');
 goog.require('ydn.db.schema.fulltext.Catalog');
 goog.require('ydn.db.text.IndexEntry');
+goog.require('ydn.db.text.Normalizer');
 goog.require('ydn.db.text.ResultSet');
 
 
 
 /**
  * Text analyzer.
+ * @param {number} total_doc the total number of documents.
  * @param {ydn.db.schema.fulltext.Catalog} schema
  * @constructor
  */
-ydn.db.text.Analyzer = function(schema) {
+ydn.db.text.Analyzer = function(total_doc, schema) {
+  /**
+   * @final
+   * @type {number}
+   */
+  this.total_doc = total_doc;
+
   /**
    * @final
    * @protected
@@ -125,7 +132,8 @@ ydn.db.text.Analyzer.prototype.scoreQuery = function(text) {
         return s.getKeyword() == word;
       });
       if (!score) {
-        score = new ydn.db.text.QueryToken(tokens[i], word, positions[i]);
+        score = new ydn.db.text.QueryToken(this.total_doc,
+            tokens[i], word, positions[i]);
         scores.push(score);
       }
     }
