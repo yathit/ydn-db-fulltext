@@ -90,11 +90,34 @@ ydn.db.text.IndexEntry.prototype.freq = function() {
 
 
 /**
+ * Term frequency formula.
+ * @enum {string}
+ */
+ydn.db.text.IndexEntry.TfMode = {
+  LOG: 'l',
+  FREQ: 'f',
+  BOOLEAN: 'b'
+};
+
+
+/**
+ * @type {ydn.db.text.IndexEntry.TfMode}
+ */
+ydn.db.text.IndexEntry.prototype.tfMode = ydn.db.text.IndexEntry.TfMode.LOG;
+
+
+/**
  * Logarithmically scaled frequency.
  * @return {number} return  term frequency.
  */
 ydn.db.text.IndexEntry.prototype.termFreq = function() {
-  return this.loc_.length; // Math.log(this.loc_.length + 1);
+  if (this.tfMode == ydn.db.text.IndexEntry.TfMode.LOG) {
+    return Math.log(this.loc_.length + 1);
+  } else if (this.tfMode == ydn.db.text.IndexEntry.TfMode.FREQ) {
+    return this.loc_.length;
+  } else {
+    return this.loc_.length > 0 ? 1 : 0;
+  }
 };
 
 

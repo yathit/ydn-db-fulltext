@@ -151,6 +151,7 @@ ydn.db.text.RankEntry.prototype.toJson = function() {
   entry['primaryKey'] = this.primary_key;
   entry['storeName'] = this.store_name;
   entry['score'] = this.getScore();
+  // console.log(entry);
   return entry;
 };
 

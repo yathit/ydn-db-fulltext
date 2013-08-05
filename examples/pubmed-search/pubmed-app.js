@@ -31,6 +31,20 @@ var PubMedApp = function() {
   var input = document.getElementById('search_input');
   input.onkeyup = this.handleInputChanged.bind(this);
 
+  this.ele_results_.addEventListener('click', function(e) {
+    var a = e.target;
+    if (a.tagName == 'A' && a.className == 'toggle') {
+      var pe = a.nextElementSibling.nextElementSibling;
+      if (a.textContent == 'hide') {
+        pe.style.display = 'none';
+        a.textContent = 'show';
+      } else {
+        pe.style.display = '';
+        a.textContent = 'hide';
+      }
+    }
+  });
+
   this.stringency = 0.5;
   // this.sel_stc = document.getElementById("sel_stc");
   // this.sel_stc.onchange = this.handleStringencyChanged(this);
@@ -54,32 +68,22 @@ PubMedApp.prototype.handleInputChanged = function(event) {
 
 PubMedApp.prototype.ele_results_ = document.getElementById('results');
 
+
 /**
  * @param {Array.<ydn.db.text.RankEntry>} arr
  */
 PubMedApp.prototype.renderResult = function(arr) {
-  var toggle = function(e) {
-    var pe = e.target.nextElementSibling.nextElementSibling;
-    if (e.target.textContent == 'hide') {
-      pe.style.display = 'none';
-      e.target.textContent = 'show';
-    } else {
-      pe.style.display = '';
-      e.target.textContent = 'hide';
-    }
-  };
   this.ele_results_.innerHTML = '';
   var ul = document.createElement('ul');
   for (var i = 0; i < arr.length; i++) {
     var entry = arr[i];
     var li = document.createElement('li');
     var span = document.createElement('span');
-    var a = document.createElement('a');
+    var a = document.createElement('A');
     a.target = '_blank';
-    var swt = document.createElement('a');
+    var swt = document.createElement('A');
     var div = document.createElement('div');
     div.style.display = 'none';
-    swt.onclick = toggle;
     swt.textContent = 'show';
     swt.className = 'toggle';
     swt.href = '#';
@@ -90,15 +94,25 @@ PubMedApp.prototype.renderResult = function(arr) {
     li.appendChild(a);
     li.appendChild(div);
     this.db.get(entry.storeName, entry.primaryKey).done(function(x) {
-      var span = this.children[0];
-      var swt = this.children[1];
-      var a = this.children[2];
-      var div = this.children[3];
+      var li = this.li;
+      var entry = this.entry;
+      console.log(entry);
+      var span = li.children[0];
+      var swt = li.children[1];
+      var a = li.children[2];
+      var div = li.children[3];
       a.textContent = x.title;
       a.href = 'http://www.ncbi.nlm.nih.gov/pubmed/' + x.id;
-      div.innerHTML = x.abstract;
-      // console.log(x);
-    }, li);
+      var html = x.abstract;
+      // do highlighting
+      for (var i = entry.loc.length - 1; i >= 0; i--) {
+        var loc = entry.loc[i];
+        html = html.substr(0, loc) + '<span class="highlighted">' +
+            html.substring(loc, loc + x.word.length) + '</span>' +
+            html.substr(loc + 1);
+      }
+      div.innerHTML = html;
+    }, {li: li, entry: entry});
     ul.appendChild(li);
   }
   this.ele_results_.appendChild(ul);

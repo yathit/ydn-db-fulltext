@@ -18,6 +18,7 @@
 <body>
     <script type="text/javascript">
         goog.require('goog.testing.jsunit');
+        ydn.db.text.IndexEntry.prototype.tfMode = ydn.db.text.IndexEntry.TfMode.FREQ;
         var ft_schema = ydn.db.schema.fulltext.Catalog.fromJson({
             name: 'test',
             lang: 'en',

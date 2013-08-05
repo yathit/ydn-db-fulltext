@@ -62,6 +62,14 @@ ydn.db.text.Analyzer.prototype.setTotalDoc = function(total) {
 
 
 /**
+ * @return {boolean} true if total doc has set.
+ */
+ydn.db.text.Analyzer.prototype.hasInit = function() {
+  return goog.isDef(this.total_doc);
+};
+
+
+/**
  * Increment total number of documents.
  * @param {number} ex
  */

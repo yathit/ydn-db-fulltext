@@ -41,15 +41,7 @@ ydn.db.crud.Storage.text.DEBUG = false;
 ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
   var me = this;
 
-  var sources = ft_schema.getSourceNames();
   ft_schema.engine = new ydn.db.text.QueryEngine(ft_schema);
-  this.getCoreOperator().countInternal(sources).addCallbacks(
-      function(cnts) {
-        var total = cnts.reduce(function(p, x) {return p + x;}, 0);
-        ft_schema.engine.setTotalDoc(total);
-      }, function(e) {
-        throw e;
-      }, this);
 
   /**
    * @param {!ydn.db.Request} rq
@@ -73,8 +65,9 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
         if (ydn.db.crud.Storage.text.DEBUG) {
           window.console.log(json);
         }
-        ft_schema.engine.addTotalDoc(1);
-        me.getCoreOperator().dumpInternal(ft_schema.getName(), json);
+        ft_schema.engine.analyzer.addTotalDoc(1);
+        me.getCoreOperator().dumpInternal(ft_schema.getName(), json,
+            undefined, true);
       }, this);
     } else if (mth == ydn.db.Request.Method.PUTS) {
       var arr = /** @type {Array} */ (args[1]);
@@ -94,8 +87,9 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           if (ydn.db.crud.Storage.text.DEBUG) {
             window.console.log(json);
           }
-          ft_schema.engine.addTotalDoc(json.length);
-          me.getCoreOperator().dumpInternal(ft_schema.getName(), json);
+          ft_schema.engine.analyzer.addTotalDoc(json.length);
+          me.getCoreOperator().dumpInternal(ft_schema.getName(), json,
+              undefined, true);
         }
       });
     }
@@ -119,6 +113,16 @@ ydn.db.crud.Storage.prototype.search = function(name, query, opt_limit,
   if (!ft_schema) {
     throw new ydn.debug.error.ArgumentException('full text index catalog "' +
         name + '" not found.');
+  }
+  if (!ft_schema.engine.analyzer.hasInit()) {
+    var sources = ft_schema.getSourceNames();
+    this.getCoreOperator().countInternal(sources, true).addCallbacks(
+        function(cnts) {
+          var total = cnts.reduce(function(p, x) {return p + x;}, 0);
+          ft_schema.engine.analyzer.setTotalDoc(total);
+        }, function(e) {
+          throw e;
+        }, this);
   }
   var result = ft_schema.engine.query(name, query, opt_limit, opt_threshold);
   if (!result) {

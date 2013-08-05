@@ -35,27 +35,9 @@ ydn.db.text.QueryEngine = function(schema) {
   this.schema = schema;
   /**
    * @final
-   * @protected
    * @type {ydn.db.text.Analyzer}
    */
   this.analyzer = new ydn.db.text.Analyzer(schema);
-};
-
-
-/**
- * @param {number} total total_doc the total number of documents.
- */
-ydn.db.text.QueryEngine.prototype.setTotalDoc = function(total) {
-  this.analyzer.setTotalDoc(total);
-};
-
-
-/**
- * Increment total number of documents.
- * @param {number} ex
- */
-ydn.db.text.QueryEngine.prototype.addTotalDoc = function(ex) {
-  this.analyzer.addTotalDoc(ex);
 };
 
 
