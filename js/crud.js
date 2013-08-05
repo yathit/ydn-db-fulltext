@@ -56,7 +56,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
         window.console.log(mth + ' indexing ' + store_name +
             ydn.json.toShortString(doc));
       }
-      rq.addCallback(function(key) {
+      rq.await(function(key, is_error, cb) {
         var p_key = /** @type {IDBKey} */ (key);
         var entries = ft_schema.engine.analyze(store_name, p_key, doc);
         var json = entries.map(function(x) {
@@ -66,8 +66,10 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           window.console.log(json);
         }
         ft_schema.engine.analyzer.addTotalDoc(1);
-        me.getCoreOperator().dumpInternal(ft_schema.getName(), json,
-            undefined, true);
+        me.getCoreOperator().dumpInternal(ft_schema.getName(), json).addBoth(
+            function() {
+              cb(key, is_error);
+            });
       }, this);
     } else if (mth == ydn.db.Request.Method.PUTS) {
       var arr = /** @type {Array} */ (args[1]);
@@ -76,7 +78,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
         window.console.log(mth + ' indexing ' + store_name +
             arr.length + ' objects');
       }
-      rq.addCallback(function(keys) {
+      rq.await(function(keys, is_error, cb) {
         for (var i = 0; i < keys.length; i++) {
           var doc = /** @type {!Object} */ (arr[i]);
           var p_key = /** @type {IDBKey} */ (keys[i]);
@@ -88,8 +90,10 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
             window.console.log(json);
           }
           ft_schema.engine.analyzer.addTotalDoc(json.length);
-          me.getCoreOperator().dumpInternal(ft_schema.getName(), json,
-              undefined, true);
+          me.getCoreOperator().dumpInternal(ft_schema.getName(), json).addBoth(
+              function() {
+                cb(keys, is_error);
+              });
         }
       });
     }
