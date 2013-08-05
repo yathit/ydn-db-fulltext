@@ -55,7 +55,11 @@ goog.inherits(ydn.db.text.ResultEntry, ydn.db.text.IndexEntry);
  * @return {number} return inverse document frequency.
  */
 ydn.db.text.ResultEntry.prototype.invDocFreq = function() {
-  return Math.log(this.query.total_doc / (1 + this.freq()));
+  if (!this.query.total_doc) {
+    return 1;
+  } else {
+    return Math.log(this.query.total_doc / (1 + this.freq()));
+  }
 };
 
 

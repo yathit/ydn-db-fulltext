@@ -22,12 +22,11 @@ goog.require('ydn.db.text.Analyzer');
 
 
 /**
- * @param {number} total_doc the total number of documents.
  * @param {!ydn.db.schema.fulltext.Catalog} schema full text search schema.
  * @constructor
  * @implements {ydn.db.schema.fulltext.Engine}
  */
-ydn.db.text.QueryEngine = function(total_doc, schema) {
+ydn.db.text.QueryEngine = function(schema) {
   /**
    * @final
    * @protected
@@ -39,7 +38,24 @@ ydn.db.text.QueryEngine = function(total_doc, schema) {
    * @protected
    * @type {ydn.db.text.Analyzer}
    */
-  this.analyzer = new ydn.db.text.Analyzer(total_doc, schema);
+  this.analyzer = new ydn.db.text.Analyzer(schema);
+};
+
+
+/**
+ * @param {number} total total_doc the total number of documents.
+ */
+ydn.db.text.QueryEngine.prototype.setTotalDoc = function(total) {
+  this.analyzer.setTotalDoc(total);
+};
+
+
+/**
+ * Increment total number of documents.
+ * @param {number} ex
+ */
+ydn.db.text.QueryEngine.prototype.addTotalDoc = function(ex) {
+  this.analyzer.addTotalDoc(ex);
 };
 
 

@@ -32,7 +32,7 @@
                     weight: 0.6
                 }]
         });
-        var query = new ydn.db.text.QueryToken('tiger', 'TGR', 0, 'article', 'title');
+        var query = new ydn.db.text.QueryToken(NaN, 'tiger', 'TGR', 0, 'article', 'title');
 
         var test_add_result = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
@@ -43,7 +43,7 @@
                   value: 'first' + i,
                   keyPath: 'title',
                   score: 1,
-                  positions: [2],
+                  loc: [2],
                   id: ['article', 'key' + i, 'first' + i]
               }
             }
@@ -56,18 +56,18 @@
                 value: 'a',
                 score: 1,
                 keyPath: 'title',
-                positions: [2],
+                loc: [2],
                 id: ['article', 'key1', 'a']
             }, {
                 value: 'b',
                 score: 1,
                 keyPath: 'title',
-                positions: [2],
+                loc: [2],
                 id: ['article', 'key1', 'b']
             }, {
                 value: 'b',
                 score: 1,
-                positions: [2],
+                loc: [2],
                 keyPath: 'title',
                 id: ['article', 'key1', 'b'] // repeat entry
             }]);
@@ -75,13 +75,13 @@
             rs.addResult(query, [{
                 value: 'b',
                 score: 1,
-                positions: [10],
+                loc: [10],
                 keyPath: 'title',
                 id: ['article', 'key1', 'b'] // repeat entry
             }, {
                 value: 'c',
                 score: 0.5,
-                positions: [3],
+                loc: [3],
                 keyPath: 'title',
                 id: ['article', 'key1', 'c']
             }]);
@@ -91,13 +91,13 @@
             rs.addResult(query, [{
                 value: 'a',
                 score: 1,
-                positions: [10],
+                loc: [10],
                 keyPath: 'title',
                 id: ['article', 'key1', 'a']
             }, {
                 value: 'a',
                 score: 1,
-                positions: [3],
+                loc: [3],
                 keyPath: 'body',
                 id: ['article', 'key1', 'a'] // repeat entry
             }]);
@@ -109,7 +109,7 @@
             rs.addResult(query, [{
                 value: 'tiger',
                 score: 1,
-                positions: [1],
+                loc: [1],
                 keyPath: 'title',
                 id: ['article', 'key1', 'tiger']
             }]);
@@ -120,7 +120,7 @@
             rs.addResult(query, [{
                 value: 'tiger',
                 score: 1,
-                positions: [1],
+                loc: [1],
                 keyPath: 'body',
                 id: ['article', 'key2', 'tiger']
             }]);
@@ -132,13 +132,13 @@
             rs.addResult(query, [{
                 value: 'tiger',
                 score: 1,
-                positions: [1],
+                loc: [1],
                 keyPath: 'title',
                 id: ['article', 'key3', 'tiger']
             }, {
                 value: 'tiger',
                 score: 1,
-                positions: [1],
+                loc: [1],
                 keyPath: 'body',
                 id: ['article', 'key3', 'tiger']
             }]);
@@ -150,17 +150,17 @@
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
             rs.addResult(query, [{
                 value: 'tiger',
-                positions: [1],
+                loc: [1],
                 keyPath: 'body',
                 id: ['article', 'key1', 'tiger']
             }, {
                 value: 'tiger',
-                positions: [1],
+                loc: [1],
                 keyPath: 'title',
                 id: ['article', 'key2', 'tiger']
             }]);
             var results = rs.collect();
-            console.log(results);
+            // console.log(results);
             assertEquals('number of result', 2, results.length);
             assertEquals('compound score', 1, results[0].score);
             assertEquals('compound score', 0.6, results[1].score);
@@ -184,7 +184,7 @@
             console.log(results);
             assertEquals('number of result', 1, results.length);
             assertTrue('score more than one', results[0].score > 1);
-            assertTrue('score less than two score', results[0].score < 2);
+            assertTrue('score less than two score', results[0].score <= 2);
         };
     </script>
 </body>

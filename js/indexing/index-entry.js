@@ -94,7 +94,7 @@ ydn.db.text.IndexEntry.prototype.freq = function() {
  * @return {number} return  term frequency.
  */
 ydn.db.text.IndexEntry.prototype.termFreq = function() {
-  return Math.log(this.loc_.length + 1);
+  return this.loc_.length; // Math.log(this.loc_.length + 1);
 };
 
 

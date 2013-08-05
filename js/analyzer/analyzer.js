@@ -34,16 +34,15 @@ goog.require('ydn.db.text.ResultSet');
 
 /**
  * Text analyzer.
- * @param {number} total_doc the total number of documents.
  * @param {ydn.db.schema.fulltext.Catalog} schema
  * @constructor
  */
-ydn.db.text.Analyzer = function(total_doc, schema) {
+ydn.db.text.Analyzer = function(schema) {
   /**
-   * @final
+   * @protected
    * @type {number}
    */
-  this.total_doc = total_doc;
+  this.total_doc = NaN;
 
   /**
    * @final
@@ -51,6 +50,23 @@ ydn.db.text.Analyzer = function(total_doc, schema) {
    * @type {!Array.<!ydn.db.text.Normalizer>}
    */
   this.normalizers = ydn.db.text.Analyzer.getNormalizers(schema);
+};
+
+
+/**
+ * @param {number} total total_doc the total number of documents.
+ */
+ydn.db.text.Analyzer.prototype.setTotalDoc = function(total) {
+  this.total_doc = total;
+};
+
+
+/**
+ * Increment total number of documents.
+ * @param {number} ex
+ */
+ydn.db.text.Analyzer.prototype.addTotalDoc = function(ex) {
+  this.total_doc += ex;
 };
 
 

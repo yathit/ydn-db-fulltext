@@ -68,8 +68,8 @@
             assertEquals('value 1', 'test', words[1].getValue());
             assertEquals('value 2', 'cow', words[2].getValue());
             assertEquals('value 3', 'fish', words[3].getValue());
-            assertTrue('score 0', words[0].getScore() > words[1].getScore());
-            assertTrue('score 2', words[2].getScore() > words[1].getScore());
+            assertTrue('score 0', words[0].getScore() >= words[1].getScore());
+            assertTrue('score 2', words[2].getScore() >= words[1].getScore());
         };
 
     </script>

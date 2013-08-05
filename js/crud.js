@@ -42,10 +42,11 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
   var me = this;
 
   var sources = ft_schema.getSourceNames();
+  ft_schema.engine = new ydn.db.text.QueryEngine(ft_schema);
   this.getCoreOperator().countInternal(sources).addCallbacks(
       function(cnts) {
         var total = cnts.reduce(function(p, x) {return p + x;}, 0);
-        ft_schema.engine = new ydn.db.text.QueryEngine(total, ft_schema);
+        ft_schema.engine.setTotalDoc(total);
       }, function(e) {
         throw e;
       }, this);
@@ -72,6 +73,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
         if (ydn.db.crud.Storage.text.DEBUG) {
           window.console.log(json);
         }
+        ft_schema.engine.addTotalDoc(1);
         me.getCoreOperator().dumpInternal(ft_schema.getName(), json);
       }, this);
     } else if (mth == ydn.db.Request.Method.PUTS) {
@@ -92,9 +94,10 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           if (ydn.db.crud.Storage.text.DEBUG) {
             window.console.log(json);
           }
+          ft_schema.engine.addTotalDoc(json.length);
           me.getCoreOperator().dumpInternal(ft_schema.getName(), json);
         }
-      }, this);
+      });
     }
   };
   store.addHook(indexer);
@@ -116,10 +119,6 @@ ydn.db.crud.Storage.prototype.search = function(name, query, opt_limit,
   if (!ft_schema) {
     throw new ydn.debug.error.ArgumentException('full text index catalog "' +
         name + '" not found.');
-  }
-  if (!ft_schema.engine) {
-    throw new ydn.debug.error.InvalidOperationException('engine not ready,' +
-        ' while counting total number of records');
   }
   var result = ft_schema.engine.query(name, query, opt_limit, opt_threshold);
   if (!result) {
