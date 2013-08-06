@@ -33,7 +33,7 @@ var Animals = function() {
 
 
 Animals.prototype.handleInputChanged = function(e) {
-  var key = event.keyCode || event.which;
+  var key = e.keyCode || e.which;
   if (key == 13) {
     this.handleSearch(e);
   }
@@ -99,7 +99,7 @@ Animals.prototype.load = function(url) {
       }
     }
     // console.log(animals);
-    me.setStatus(animals.length + ' animals loaded.');
+    me.setStatus(animals.length + ' animals loaded, indexing...');
     me.db.put('animal', animals).then(function(keys) {
       this.setStatus(keys.length + ' animals saved.');
     }, function(e) {

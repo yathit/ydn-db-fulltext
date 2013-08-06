@@ -82,16 +82,18 @@ ydn.db.text.ResultEntry.fromJson = function(query, json) {
   id = goog.isString(id) ? ydn.db.utils.decodeKey(id) : id;
   var keyword = json['keyword'];
   var positions = json['loc'];
-  var key_path = json['keyPath'];
   goog.asserts.assertString(id[0], 'Invalid key ' +
-      JSON.stringify(id) + ' at 0.');
-  goog.asserts.assertString(id[2], 'Invalid key ' +
-      JSON.stringify(id) + ' at 1.');
+      JSON.stringify(id) + ' at 0 for store name');
   goog.asserts.assert(goog.isDefAndNotNull(id[1]), 'Invalid key ' +
-      JSON.stringify(id) + ' at 2.');
+      JSON.stringify(id) + ' at 1 for primary key');
+  goog.asserts.assertString(id[2], 'Invalid key ' +
+      JSON.stringify(id) + ' at 2 for key path.');
+  goog.asserts.assertString(id[3], 'Invalid key ' +
+      JSON.stringify(id) + ' at 3 for value.');
   var store_name = id[0];
   var p_key = id[1];
   var value = id[2];
+  var key_path = id[2];
   return new ydn.db.text.ResultEntry(query, store_name, key_path, p_key, value,
       keyword, positions);
 };

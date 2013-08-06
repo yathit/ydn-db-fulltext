@@ -143,7 +143,6 @@ ydn.db.text.IndexEntry.prototype.toJson = function() {
   // Also note that, actual value in id is case sensative.
   return {
     'keyword': this.keyword,
-    'keyPath': this.key_path,
     'value': this.value.toLowerCase(),
     'id': this.getId(), // store name and primary key
     'loc': this.loc_ // .slice() // no need defensive
@@ -163,7 +162,7 @@ ydn.db.text.IndexEntry.prototype.getLoc = function() {
  * @override
  */
 ydn.db.text.IndexEntry.prototype.getId = function() {
-  var id = [this.store_name, this.primary_key, this.value];
+  var id = [this.store_name, this.primary_key, this.key_path, this.value];
   return ydn.db.text.Token.isArrayKeyPathSupported ?
       id : ydn.db.utils.encodeKey(id);
 };

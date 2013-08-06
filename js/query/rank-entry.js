@@ -87,6 +87,7 @@ ydn.db.text.RankEntry.prototype.merge = function(entry) {
   for (var i = 0; i < this.results.length; i++) {
     if (this.results[i].key_path == result.key_path &&
         this.results[i].value == result.value) {
+      // console.log('already in result list' + result.value + ' ' + result.key_path);
       return; // already in the result list
     }
   }

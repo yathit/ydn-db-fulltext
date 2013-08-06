@@ -96,7 +96,9 @@ PubMedApp.prototype.renderResult = function(arr) {
     this.db.get(entry.storeName, entry.primaryKey).done(function(x) {
       var li = this.li;
       var entry = this.entry;
-      console.log(entry);
+      if (entry.tokens.length > 1) {
+        console.log(entry);
+      }
       var span = li.children[0];
       var swt = li.children[1];
       var a = li.children[2];

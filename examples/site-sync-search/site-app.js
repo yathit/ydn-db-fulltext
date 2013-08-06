@@ -87,7 +87,7 @@ SiteApp.prototype.randomWord = function(e) {
 
 
 SiteApp.prototype.handleInputChanged = function(e) {
-  var key = event.keyCode || event.which;
+  var key = e.keyCode || e.which;
   if (key == 13) {
     this.handleSearch(e);
   }
