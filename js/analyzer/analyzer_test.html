@@ -46,7 +46,6 @@
         var test_query_one = function() {
             var stda = new ydn.db.text.Analyzer(catalog);
             var words = stda.scoreQuery("Dog");
-            // console.log(words);
             assertEquals('length', 1, words.length);
             assertEquals('value 0', 'Dog', words[0].getValue());
             assertEquals('key 0', 'TK', words[0].getKeyword());
@@ -70,6 +69,15 @@
             assertEquals('value 3', 'fish', words[3].getValue());
             assertTrue('score 0', words[0].getScore() >= words[1].getScore());
             assertTrue('score 2', words[2].getScore() >= words[1].getScore());
+        };
+        var test_location = function() {
+            var stda = new ydn.db.text.Analyzer(catalog);
+            var words = stda.score("dog a dog", catalog.index(0), '1');
+            // console.log(words);
+            assertEquals('length', 1, words.length);
+            assertEquals('value 0', 'dog', words[0].getValue());
+            assertEquals('key 0', 'TK', words[0].getKeyword());
+            assertArrayEquals('location', [0, 6], words[0].loc_);
         };
 
     </script>

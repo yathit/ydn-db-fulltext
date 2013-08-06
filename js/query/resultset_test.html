@@ -43,7 +43,6 @@
                   keyword: 'first' + i,
                   value: 'first' + i,
                   keyPath: 'title',
-                  score: 1,
                   loc: [2],
                   id: ['article', 'key' + i, 'first' + i]
               }
@@ -55,39 +54,36 @@
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
             rs.addResult(query, [{
                 value: 'a',
-                score: 1,
                 keyPath: 'title',
                 loc: [2],
                 id: ['article', 'key1', 'a']
             }, {
                 value: 'b',
-                score: 1,
                 keyPath: 'title',
                 loc: [2],
-                id: ['article', 'key1', 'b']
+                id: ['article', 'key2', 'b']
             }, {
                 value: 'b',
-                score: 1,
                 loc: [2],
                 keyPath: 'title',
-                id: ['article', 'key1', 'b'] // repeat entry
+                id: ['article', 'key2', 'b'] // repeat entry
             }]);
-            assertEquals('repeat entry', 2, rs.collect().length);
+            var results = rs.collect();
+            assertEquals('repeat entry', 2, results.length);
             rs.addResult(query, [{
                 value: 'b',
-                score: 1,
                 loc: [10],
                 keyPath: 'title',
-                id: ['article', 'key1', 'b'] // repeat entry
+                id: ['article', 'key1', 'a']// repeat entry
             }, {
                 value: 'c',
-                score: 0.5,
                 loc: [3],
                 keyPath: 'title',
-                id: ['article', 'key1', 'c']
+                id: ['article', 'key4', 'c']
             }]);
-            assertEquals('repeat entry in next', 3, rs.collect().length);
-
+            results = rs.collect();
+            assertEquals('repeat entry in next', 3, results.length);
+            /*
             rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
             rs.addResult(query, [{
                 value: 'a',
@@ -102,8 +98,9 @@
                 keyPath: 'body',
                 id: ['article', 'key1', 'a'] // repeat entry
             }]);
-            assertEquals('same entry with different path', 1, rs.collect().length);
-
+            results = rs.collect();
+            assertEquals('same entry with different path', 1, results.length);
+            */
         };
         var test_scoring = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
@@ -158,13 +155,13 @@
                 value: 'tiger',
                 loc: [1],
                 keyPath: 'title',
-                id: ['article', 'key2', 'tiger']
+                id: ['article', 'key1', 'tiger']
             }]);
             var results = rs.collect();
             // console.log(results);
-            assertEquals('number of result', 2, results.length);
-            assertEquals('compound score', 1, results[0].score);
-            assertEquals('compound score', 0.6, results[1].score);
+            assertEquals('number of result', 1, results.length);
+            assertEquals('number of tokens', 2, results[0].tokens.length);
+            assertEquals('compound score', 1.6, results[0].score);
         };
         var test_ranking_multiple_cases = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
@@ -182,8 +179,8 @@
                 id: ['article', 'key1', 'Tiger']
             }]);
             var results = rs.collect();
-            console.log(results);
             assertEquals('number of result', 1, results.length);
+            assertEquals('number of tokens', 2, results[0].tokens.length);
             assertTrue('score more than one', results[0].score > 1);
             assertTrue('score less than two score', results[0].score <= 2);
         };

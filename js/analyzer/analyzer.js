@@ -169,11 +169,11 @@ ydn.db.text.Analyzer.prototype.scoreQuery = function(text) {
 
 /**
  * @param {string} text text to be prase and scored.
- * @param {ydn.db.schema.fulltext.InvIndex} source inverted index.
+ * @param {ydn.db.schema.fulltext.InvIndex} inv_index inverted index.
  * @param {IDBKey} key primary key.
- * @return {Array.<ydn.db.text.IndexEntry>} scores for each unique token.
+ * @return {!Array.<!ydn.db.text.IndexEntry>} scores for each unique token.
  */
-ydn.db.text.Analyzer.prototype.score = function(text, source, key) {
+ydn.db.text.Analyzer.prototype.score = function(text, inv_index, key) {
   var tokens = [];
   var positions = [];
   // Note: parse is always sync.
@@ -187,22 +187,22 @@ ydn.db.text.Analyzer.prototype.score = function(text, source, key) {
     nTokens[i] = this.normalize(tokens[i]);
   }
 
-  var store_name = source.getStoreName();
-  var key_path = source.getKeyPath();
+  var store_name = inv_index.getStoreName();
+  var key_path = inv_index.getKeyPath();
   var scores = [];
-  var wordcount = 0;
   for (var i = 0; i < tokens.length; i++) {
-    var word = nTokens[i];
-    if (goog.isDefAndNotNull(word)) {
+    var word = tokens[i];
+    var keyword = nTokens[i];
+    if (goog.isDefAndNotNull(keyword)) {
       var score = goog.array.find(scores, function(s) {
-        return s.getKeyword() == word;
+        return s.getValue() == word;
       });
       if (!score) {
         score = new ydn.db.text.IndexEntry(store_name, key_path, key,
-            tokens[i], word);
+            word, keyword);
         scores.push(score);
       }
-      score.encounter(++wordcount);
+      score.encounter(positions[i]);
     }
   }
 

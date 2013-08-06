@@ -81,8 +81,6 @@ ydn.db.text.RankEntry.prototype.merge = function(entry) {
     // merge only with same reference token.
     goog.asserts.assert(this.store_name == entry.store_name, 'store_name');
     goog.asserts.assert(this.primary_key == entry.primary_key, 'primary_key');
-    goog.asserts.assert(this.getValue().toLowerCase() ==
-        entry.getValue().toLowerCase(), 'value');
     goog.asserts.assert(entry.results.length == 1, 'must only have one result');
   }
   var result = entry.results[0];
@@ -117,25 +115,16 @@ ydn.db.text.RankEntry.prototype.getScore = function() {
 
 
 /**
- * Compare by score. Comparing same token returns 0.
- * The different from @see ydn.db.text.Token.cmp is that, here id comparison is
- * case insensative.
+ * Compare by score.
  * @param {ydn.db.text.RankEntry} a entry a.
  * @param {ydn.db.text.RankEntry} b entry b.
- * @return {number} return 0 if same token, 1 if score of entry a is smaller
- * than that of b, -1 if score of entry b is smaller than a.
+ * @return {number} return 1 if score of entry a is smaller or equal
+ * than that of b, -1 otherwise.
  */
 ydn.db.text.RankEntry.cmp = function(a, b) {
-  var similar = a.getPrimaryKey() == b.getPrimaryKey() &&
-      a.value.toLowerCase() == b.value.toLowerCase();
-  // console.log('cmp', similar, a, b);
-  if (similar) {
-    return 0;
-  } else {
-    var a_score = a.getScore();
-    var b_score = b.getScore();
-    return a_score > b_score ? -1 : b_score > a_score ? 1 : 1;
-  }
+  var a_score = a.getScore();
+  var b_score = b.getScore();
+  return a_score <= b_score ? 1 : -1;
 };
 
 
@@ -149,14 +138,12 @@ ydn.db.text.RankEntry.prototype.toJson = function() {
   var entry = {
     'value': this.value,
     'primaryKey': this.primary_key,
-    'keyPath': this.key_path,
     'storeName': this.store_name,
-    'keyword': this.keyword,
     'score': this.getScore(),
     'tokens': []
   };
   for (var i = 0; i < this.results.length; i++) {
-    entry.tokens[i] = this.results[i].toJson();
+    entry['tokens'][i] = this.results[i].toJson();
   }
   return entry;
 };

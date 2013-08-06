@@ -46,13 +46,36 @@
         var engine = new ydn.db.text.QueryEngine(catalog);
         var record = {
             name: 'Prairie Dog',
-            binomial: 'Cynomys ludovicianus'
+            binomial: ''
         };
         var key = 'id1';
         var words = engine.analyze('animal', key, record);
         // console.log(words);
-        assertEquals('length', 4, words.length);
-        assertEquals('value 0', 'Cynomys', words[0].getValue());
+        assertEquals('length', 2, words.length);
+        assertEquals('value 0', 'Prairie', words[0].getValue());
+        assertEquals('value 1', 'Dog', words[1].getValue());
+        assertArrayEquals('loc 0', [0], words[0].loc_);
+    };
+    var test_analyze_multi_index = function() {
+        var engine = new ydn.db.text.QueryEngine(catalog);
+        var record = {
+            binomial: 'Dog a dog, but a dog',
+            name: 'Cat and dog'
+        };
+        var key = 'id1';
+        var entries = engine.analyze('animal', key, record);
+        // console.log(entries);
+        assertEquals('length', 4, entries.length);
+        assertEquals('value 0', 'Dog', entries[0].getValue());
+        assertEquals('value 1', 'dog', entries[1].getValue());
+        assertEquals('value 2', 'Cat', entries[2].getValue());
+        assertEquals('value 3', 'dog', entries[3].getValue());
+        assertEquals('key path 0', 'binomial', entries[0].key_path);
+        assertEquals('key path 1', 'binomial', entries[1].key_path);
+        assertEquals('key path 2', 'name', entries[2].key_path);
+        assertEquals('#token entry 0', 1, entries[0].loc_.length);
+        assertEquals('#token entry 1', 2, entries[1].loc_.length);
+        assertEquals('#token entry 2', 1, entries[2].loc_.length);
     };
 </script>
 </body>

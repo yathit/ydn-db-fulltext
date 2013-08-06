@@ -130,9 +130,10 @@ ydn.db.text.ResultSet.prototype.getStoreList = function() {
  */
 ydn.db.text.ResultSet.prototype.addResult = function(q, results) {
   var query = /** @type {ydn.db.text.QueryToken} */ (q);
+  // console.log(results.length + ' for ' + query.getValue() + ' in ' +
+  // (results[0] ? results[0].keyPath : ''))
   for (var i = 0; i < results.length; i++) {
-    var entry = ydn.db.text.ResultEntry.fromJson(
-        /** @type {ydn.db.text.QueryToken} */ (query), results[i]);
+    var entry = ydn.db.text.ResultEntry.fromJson(query, results[i]);
     this.results.push(entry);
   }
   var next = true;
@@ -153,14 +154,17 @@ ydn.db.text.ResultSet.prototype.collect = function() {
   var arr = [];
   for (var i = 0; i < this.results.length; i++) {
     var entry = new ydn.db.text.RankEntry(this.catalog, this.results[i]);
-    var index = goog.array.binarySearch(arr, entry, ydn.db.text.RankEntry.cmp);
-    // console.log(entry, index, arr);
-    if (index < 0) {
-      goog.array.insertAt(arr, entry, -(index + 1));
-    } else {
-      var existing_entry = arr[index];
+    var existing_entry = goog.array.find(arr, function(a) {
+      return a.getPrimaryKey() == entry.getPrimaryKey() &&
+          a.getStoreName() == entry.getStoreName();
+    });
+    // console.log(entry, existing_entry)
+    if (existing_entry) {
+      goog.array.binaryRemove(arr, existing_entry);
       existing_entry.merge(entry);
+      entry = existing_entry;
     }
+    goog.array.binaryInsert(arr, entry, ydn.db.text.RankEntry.cmp);
   }
   /*
   for (var i = 0; i < arr.length; i++) {

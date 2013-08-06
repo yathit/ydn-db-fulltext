@@ -66,7 +66,7 @@ ydn.db.text.QueryEngine.prototype.query = function(catalog_name, query,
  * @param {string} store_name the store name in which document belong.
  * @param {IDBKey} key primary of the document.
  * @param {!Object} obj the document to be indexed.
- * @return {Array.<ydn.db.text.QueryToken>} score for each token.
+ * @return {Array.<!ydn.db.text.IndexEntry>} score for each token.
  */
 ydn.db.text.QueryEngine.prototype.analyze = function(store_name, key, obj) {
   var scores = [];

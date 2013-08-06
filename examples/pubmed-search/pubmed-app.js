@@ -96,21 +96,31 @@ PubMedApp.prototype.renderResult = function(arr) {
     this.db.get(entry.storeName, entry.primaryKey).done(function(x) {
       var li = this.li;
       var entry = this.entry;
-      console.log(entry);
+      // console.log(entry);
       var span = li.children[0];
       var swt = li.children[1];
       var a = li.children[2];
       var div = li.children[3];
-      a.textContent = x.title;
       a.href = 'http://www.ncbi.nlm.nih.gov/pubmed/' + x.id;
+      var title = x.title;
       var html = x.abstract;
       // do highlighting
-      for (var i = entry.loc.length - 1; i >= 0; i--) {
-        var loc = entry.loc[i];
-        html = html.substr(0, loc) + '<span class="highlighted">' +
-            html.substring(loc, loc + entry.value.length) + '</span>' +
-            html.substr(loc + 1);
+      var highlight = function(html, value, loc) {
+        return html.substr(0, loc) + '<span class="highlighted">' +
+            html.substring(loc, loc + value.length) + '</span>' +
+            html.substr(loc + value.length);
+      };
+      for (var j = 0; j < entry.tokens.length; j++) {
+        var token = entry.tokens[j];
+        for (var i = token.loc.length - 1; i >= 0; i--) {
+          if (token.keyPath == 'title') {
+            title = highlight(title, token.value, token.loc[i]);
+          } else {
+            html = highlight(html, token.value, token.loc[i]);
+          }
+        }
       }
+      a.innerHTML = title;
       div.innerHTML = html;
     }, {li: li, entry: entry});
     ul.appendChild(li);
