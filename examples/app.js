@@ -80,6 +80,18 @@ App.get = function(url, cb, opt_scope) {
   xhr.send();
 };
 
+App.isString = function(val) {
+  return typeof val == 'string';
+};
+
+App.isDef = function(val) {
+  return val !== undefined;
+};
+
+App.isArray = function(val) {
+  return val instanceof Array;
+};
+
 
 /**
  * Convert from XML to JSON format
@@ -106,14 +118,14 @@ App.xml2json = function(xml, format) {
    * @return {string}
    */
   var ns2name = function(namespace) {
-    if (is_atom_format && goog.string.startsWith(namespace, 'atom:')) {
+    if (is_atom_format && namespace.substr(0, 5) == 'atom:') {
       namespace = namespace.substring(5, namespace.length);
     }
     return namespace.replace('#text', '$t').replace(/:/g, '$');
   };
 
   // Create XML document object
-  if (goog.isString(xml)) {
+  if (App.isString(xml)) {
     xml = new DOMParser().parseFromString(xml, 'application/xml');
   }
 
@@ -139,10 +151,10 @@ App.xml2json = function(xml, format) {
       var nodeName = ns2name(item.nodeName);
       if (is_plain && nodeName == '$t') {
         obj = item.nodeValue;
-      } else if (!goog.isDef(obj[nodeName])) {
+      } else if (!App.isDef(obj[nodeName])) {
         obj[nodeName] = App.xml2json(item, format);
       } else {
-        if (!goog.isArray(obj[nodeName])) {
+        if (!App.isArray(obj[nodeName])) {
           var old = obj[nodeName];
           obj[nodeName] = [];
           obj[nodeName].push(old);
