@@ -43,39 +43,17 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
 
   ft_schema.engine = new ydn.db.text.QueryEngine(ft_schema);
 
+
   /**
    * @param {!ydn.db.Request} rq
    * @param {goog.array.ArrayLike} args
    */
   var indexer = function(rq, args) {
-    var mth = rq.getMethod();
-    if (mth == ydn.db.Request.Method.PUT) {
-      var doc = /** @type {!Object} */ (args[1]);
-      var store_name = store.getName();
-      if (ydn.db.crud.Storage.text.DEBUG) {
-        window.console.log(mth + ' indexing ' + store_name +
-            ydn.json.toShortString(doc));
-      }
-      rq.await(function(key, is_error, cb) {
-        var p_key = /** @type {IDBKey} */ (key);
-        var entries = ft_schema.engine.analyze(store_name, p_key, doc);
-        var json = entries.map(function(x) {
-          return x.toJson();
-        });
-        if (ydn.db.crud.Storage.text.DEBUG) {
-          window.console.log(json);
-        }
-        ft_schema.engine.analyzer.addTotalDoc(1);
-        me.getCoreOperator().dumpInternal(ft_schema.getName(), json).addBoth(
-            function(x) {
-              if (ydn.db.crud.Storage.text.DEBUG) {
-                window.console.log('index done', x);
-              }
-              cb(key, is_error);
-            });
-      }, this);
-    } else if (mth == ydn.db.Request.Method.PUTS) {
-      var arr = /** @type {Array} */ (args[1]);
+    /**
+     * Inject document for indexing.
+     * @param {!Array} arr
+     */
+    var inject = function(arr) {
       var store_name = store.getName();
       if (ydn.db.crud.Storage.text.DEBUG) {
         window.console.log(mth + ' indexing ' + store_name +
@@ -106,6 +84,17 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           }
         }
       });
+    };
+    var mth = rq.getMethod();
+    if (mth == ydn.db.Request.Method.PUT) {
+      var doc = /** @type {!Object} */ (args[1]);
+      inject([doc]);
+    } else if (mth == ydn.db.Request.Method.PUTS) {
+      inject(/** @type {!Array} */ (args[1]));
+    } else if (mth == ydn.db.Request.Method.ADD) {
+      inject([args[1]]);
+    } else if (mth == ydn.db.Request.Method.ADDS) {
+      inject(/** @type {!Array} */ (args[1]));
     }
   };
   store.addHook(indexer);

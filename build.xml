@@ -82,7 +82,7 @@
         <concat destfile="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}"
                 append="true">
             })();
-            //@ sourceMappingURL=ydn.db-dev-text.js.map
+            //# sourceMappingURL=ydn.db-dev-text.js.map
         </concat>
 
         <replace description="replace so with online repo path"
@@ -106,6 +106,11 @@
               tofile="${out.dir}/ydn.db-dev-text.js.map"/>
         <copy todir="${out.dir}/../demo/ydn.db-text/pubmed-search/">
             <fileset dir="${ydn-db-fulltext.dir}/examples/pubmed-search">
+                <exclude name="*.html"/>
+            </fileset>
+        </copy>
+        <copy todir="${out.dir}/../demo/ydn.db-text/animals/">
+            <fileset dir="${ydn-db-fulltext.dir}/examples/animals">
                 <exclude name="*.html"/>
             </fileset>
         </copy>

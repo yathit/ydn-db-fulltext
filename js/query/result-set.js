@@ -160,6 +160,8 @@ ydn.db.text.ResultSet.prototype.collect = function() {
     });
     // console.log(entry, existing_entry)
     if (existing_entry) {
+      // scoring has changed, so we remove the entry and re-insert to proper
+      // ranking.
       goog.array.binaryRemove(arr, existing_entry);
       existing_entry.merge(entry);
       entry = existing_entry;
