@@ -153,3 +153,79 @@ App.xml2json = function(xml, format) {
   }
   return obj;
 };
+
+
+/**
+ * Escape string.
+ * @param {string} html
+ * @return {string}
+ */
+App.escapeHTML = function(html) {
+  if (!html) {
+    return '';
+  }
+  var tagsToReplace = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;'
+  };
+
+  return html.replace(/[&<>]/g,  function replaceTag(tag) {
+    return tagsToReplace[tag] || tag;
+  });
+};
+
+
+/**
+ * @param html
+ * @constructor
+ */
+Highlighter = function(html) {
+  this.html_ = html;
+  this.loc_ = [];
+  this.len_ = [];
+};
+
+
+/**
+ * @param {number} loc
+ * @param {number} len
+ */
+Highlighter.prototype.highlight = function(loc, len) {
+  for (var i = 0; i < this.loc_.length; ++i) {
+    if (this.loc_[i] > loc) {
+      this.loc_.splice(i, 0, loc);
+      this.len_.splice(i, 0, len);
+      return;
+    }
+  }
+  this.loc_.push(loc);
+  this.len_.push(len);
+};
+
+
+/**
+ * @return {Element}
+ */
+Highlighter.prototype.render = function() {
+  // console.log(this.loc_);
+  var prev = 0;
+  var fg = document.createElement('span');
+  for (var i = 0; i < this.loc_.length; ++i) {
+    var normal = document.createElement('span');
+    var highlight = document.createElement('span');
+    var len = this.len_[i];
+    normal.textContent = this.html_.substring(prev, this.loc_[i]);
+    highlight.textContent = this.html_.substr(this.loc_[i], len);
+    highlight.className = 'highlighted';
+    fg.appendChild(normal);
+    fg.appendChild(highlight);
+    prev = this.loc_[i] + len;
+  }
+  normal = document.createElement('span');
+  normal.textContent = this.html_.substr(prev);
+  fg.appendChild(normal);
+  return fg;
+};
+
+

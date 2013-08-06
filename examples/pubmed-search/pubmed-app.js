@@ -5,7 +5,7 @@
 var PubMedApp = function() {
   App.call(this);
   var db_schema = {
-    version: 17,
+    version: 21,
     fullTextCatalogs: [{
       name: 'pubmed-index',
       lang: 'en',
@@ -34,6 +34,7 @@ var PubMedApp = function() {
       this.setStatus('Upgraded from version ' + event.getOldVersion() + ' to ' + event.getVersion());
       this.db.clear();
     }
+    this.showStatistic();
   }, false, this);
   var btn_search = document.getElementById('search');
   btn_search.onclick = this.handleSearch.bind(this);
@@ -78,6 +79,7 @@ PubMedApp.prototype.handleInputChanged = function(event) {
 PubMedApp.prototype.ele_results_ = document.getElementById('results');
 
 
+
 /**
  * @param {Array.<ydn.db.text.RankEntry>} arr
  */
@@ -108,7 +110,7 @@ PubMedApp.prototype.renderResult = function(arr) {
     this.db.get(entry.storeName, entry.primaryKey).done(function(x) {
       var li = this.li;
       var entry = this.entry;
-      if (entry.tokens.length > 1) {
+      if (entry.tokens.length > 0) {
         // console.log(entry);
       }
       var span = li.children[0];
@@ -116,26 +118,22 @@ PubMedApp.prototype.renderResult = function(arr) {
       var a = li.children[2];
       var div = li.children[3];
       a.href = 'http://www.ncbi.nlm.nih.gov/pubmed/' + x.id;
-      var title = x.title;
-      var html = x.abstract;
-      // do highlighting
-      var highlight = function(html, value, loc) {
-        return html.substr(0, loc) + '<span class="highlighted">' +
-            html.substring(loc, loc + value.length) + '</span>' +
-            html.substr(loc + value.length);
-      };
+      var title = new Highlighter(x.title);
+      var html = new Highlighter(x.abstract);
+
       for (var j = 0; j < entry.tokens.length; j++) {
         var token = entry.tokens[j];
-        for (var i = token.loc.length - 1; i >= 0; i--) {
+        for (var i = 0; i < token.loc.length; ++i) {
           if (token.keyPath == 'title') {
-            title = highlight(title, token.value, token.loc[i]);
+            title.highlight(token.loc[i], token.value.length);
           } else {
-            html = highlight(html, token.value, token.loc[i]);
+            html.highlight(token.loc[i], token.value.length);
           }
         }
       }
-      a.innerHTML = title;
-      div.innerHTML = html;
+
+      a.appendChild(title.render());
+      div.appendChild(html.render());
     }, {li: li, entry: entry});
     ul.appendChild(li);
   }
@@ -193,6 +191,7 @@ PubMedApp.prototype.handleSearch = function(e) {
 };
 
 
+
 PubMedApp.prototype.pubmedFetch = function(ids, cb, scope) {
   if (ids.length == 0) {
     cb.call(scope, []);
@@ -226,21 +225,24 @@ PubMedApp.prototype.pubmedSearch = function(term, cb, scope) {
     var id_list = json.eSearchResult[1].IdList.Id;
     var ids = [];
     if (id_list) {
-      ids =  id_list.map(function(x) {
-        return x.$t;
-      });
+      if (id_list.$t) {
+        ids = [id_list.$t];
+      } else {
+        ids = id_list.map(function(x) {
+          return x.$t;
+        });
+      }
     }
     this.pubmedFetch(ids, cb, scope);
   }, this);
 };
 
 
-
 /**
  * Run the app.
  */
 PubMedApp.prototype.run = function() {
-  this.showStatistic();
+
 };
 
 

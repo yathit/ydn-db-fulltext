@@ -67,7 +67,8 @@ ydn.db.text.ResultEntry.prototype.invDocFreq = function() {
  * @inheritDoc
  */
 ydn.db.text.ResultEntry.prototype.getScore = function() {
-  return this.termFreq() * this.invDocFreq();
+  var similarity = natural.distance.Dice.compare(this.query.value, this.value);
+  return this.termFreq() * similarity;
 };
 
 
