@@ -110,7 +110,22 @@
             </fileset>
         </copy>
     </target>
+    <target name="push" description="upload distribution">
 
+        <apply executable="python" relative="yes">
+            <arg value="${gsutil}"/>
+            <arg value="cp"/>
+            <arg value="-z js"/>
+            <fileset dir="${ydn-db-fulltext.dir}/jsc" includes="${buildno}-*.js"/>
+            <fileset dir="${ydn-db-fulltext.dir}/jsc" includes="${buildno}-*.map"/>
+            <srcfile prefix="${ydn-db-fulltext.dir}/jsc/"/>
+            <targetfile prefix="gs://download.yathit.com/ydn-db/build/"/>
+            <mapper>
+                <globmapper from="*.js" to="*-${version}.js"/>
+                <globmapper from="*.js.map" to="*.js.map"/>
+            </mapper>
+        </apply>
+    </target>
     <target name="gen-all-test-js" description="generate all test js">
         <gen-js-test base.dir="${ydn-db-fulltext.dir}/js" ext="db"></gen-js-test>
     </target>
