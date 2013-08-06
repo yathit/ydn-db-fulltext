@@ -20,27 +20,24 @@
 
 
 goog.provide('ydn.db.text.QueryToken');
+goog.provide('ydn.db.text.QueryType');
 goog.require('ydn.db.text.Token');
 
 
 
 /**
  * Entry for querying.
- * @param {number} total_doc the total number of documents.
+ * @param {ydn.db.text.QueryType} type query type.
  * @param {string} value original word.
  * @param {string} keyword normalized value of original word.
  * @param {number} position source key path.
+ * @param {number} weight positional weight.
  * @constructor
  * @extends {ydn.db.text.Token}
  * @struct
  */
-ydn.db.text.QueryToken = function(total_doc, value, keyword, position) {
+ydn.db.text.QueryToken = function(type, value, keyword, position, weight) {
   goog.base(this, value, keyword);
-  /**
-   * @final
-   * @type {number}
-   */
-  this.total_doc = total_doc;
   goog.asserts.assert(goog.isNumber(position) && !isNaN(position),
       'position ' + value);
   /**
@@ -49,15 +46,43 @@ ydn.db.text.QueryToken = function(total_doc, value, keyword, position) {
    * @type {number}
    */
   this.position = position;
+  /**
+   * Positional weight.
+   * @final
+   * @type {number}
+   */
+  this.pos_weight = weight;
+  /**
+   * @final
+   * @type {ydn.db.text.QueryType}
+   */
+  this.type = type;
+  /**
+   * Averaging factor.
+   * @type {number}
+   */
+  this.avg_factor = 1;
 };
 goog.inherits(ydn.db.text.QueryToken, ydn.db.text.Token);
+
+
+/**
+ * Query type, also serve as relative important.
+ * @enum {number}
+ */
+ydn.db.text.QueryType = {
+  PHONETIC: 0.6,
+  PREFIX: 0.4,
+  NOT: 0,
+  EXACT: 1
+};
 
 
 /**
  * @return {number} element score.
  */
 ydn.db.text.QueryToken.prototype.getWeight = function() {
-  return 1;
+  return this.pos_weight * this.type * this.avg_factor;
 };
 
 

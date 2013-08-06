@@ -156,8 +156,7 @@ ydn.db.text.Analyzer.prototype.scoreQuery = function(text) {
         return s.getKeyword() == word;
       });
       if (!score) {
-        score = new ydn.db.text.QueryToken(this.total_doc,
-            tokens[i], word, positions[i]);
+        score = new ydn.db.text.QueryToken(tokens[i], word, positions[i]);
         scores.push(score);
       }
     }

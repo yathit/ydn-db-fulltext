@@ -168,27 +168,6 @@ App.xml2json = function(xml, format) {
 
 
 /**
- * Escape string.
- * @param {string} html
- * @return {string}
- */
-App.escapeHTML = function(html) {
-  if (!html) {
-    return '';
-  }
-  var tagsToReplace = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;'
-  };
-
-  return html.replace(/[&<>]/g,  function replaceTag(tag) {
-    return tagsToReplace[tag] || tag;
-  });
-};
-
-
-/**
  * @param html
  * @constructor
  */
@@ -217,12 +196,12 @@ Highlighter.prototype.highlight = function(loc, len) {
 
 
 /**
- * @return {Element}
+ * @returns {DocumentFragment}
  */
 Highlighter.prototype.render = function() {
   // console.log(this.loc_);
   var prev = 0;
-  var fg = document.createElement('span');
+  var fg = document.createDocumentFragment();
   for (var i = 0; i < this.loc_.length; ++i) {
     var normal = document.createElement('span');
     var highlight = document.createElement('span');

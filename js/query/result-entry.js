@@ -51,14 +51,20 @@ goog.inherits(ydn.db.text.ResultEntry, ydn.db.text.IndexEntry);
 
 
 /**
+ * @type {number}
+ */
+ydn.db.text.ResultEntry.prototype.total_doc = 0;
+
+
+/**
  * Inverse document frequency.
  * @return {number} return inverse document frequency.
  */
 ydn.db.text.ResultEntry.prototype.invDocFreq = function() {
-  if (!this.query.total_doc) {
+  if (!this.total_doc) {
     return 1;
   } else {
-    return Math.log(this.query.total_doc / (1 + this.freq()));
+    return Math.log(this.total_doc / (1 + this.freq()));
   }
 };
 
