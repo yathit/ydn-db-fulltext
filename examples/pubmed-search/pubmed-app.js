@@ -3,6 +3,8 @@
  * @constructor
  */
 var PubMedApp = function() {
+  var cache = localStorage.getItem('pubmed-setting');
+  this.setting = cache ? JSON.parse(cache) : {};
   App.call(this);
   var db_schema = {
     version: 21,
@@ -174,7 +176,7 @@ PubMedApp.prototype.handleSearch = function(e) {
     if (e && (pe.length == 0 || pe[0].score < this.stringency)) {
       this.setStatus(' Searching on PubMed...', true);
       this.pubmedSearch(term, function(results) {
-        this.setStatus(results.length + ' results found in PubMed. indexing');
+        this.setStatus(results.length + ' results found in PubMed. indexing...');
         if (results.length > 0) {
           this.db.put('pubmed', results).done(function(x) {
             this.setStatus('Indexing done.');
@@ -196,7 +198,8 @@ PubMedApp.prototype.pubmedFetch = function(ids, cb, scope) {
   if (ids.length == 0) {
     cb.call(scope, []);
   }
-  var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&rettype=xml&id=' + ids.join(',');
+  var url = this.pubmedUrl('efetch', ['db=pubmed', 'rettype=xml',
+    'id=' + ids.join(',')]);
   App.get(url, function(json) {
     // console.log(json);
     window.ans = json;
@@ -218,8 +221,26 @@ PubMedApp.prototype.pubmedFetch = function(ids, cb, scope) {
 };
 
 
+/**
+ * @param {string} type
+ * @param {Array} params
+ * @returns {string}
+ */
+PubMedApp.prototype.pubmedUrl = function(type, params) {
+  var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/' + type + '.fcgi?';
+  if (this.setting.tool) {
+    params.push('tool=' + this.setting.tool);
+  }
+  if (this.email) {
+    params.push('email=' + this.setting.email);
+  }
+  return url += params.join('&');
+};
+
+
 PubMedApp.prototype.pubmedSearch = function(term, cb, scope) {
-  var url = 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=xml&term=' + term;
+  var url = this.pubmedUrl('esearch', ['db=pubmed', 'retmode=xml',
+    'term=' + term]);
   App.get(url, function(json) {
     // console.log(json);
     var id_list = json.eSearchResult[1].IdList.Id;
@@ -242,7 +263,20 @@ PubMedApp.prototype.pubmedSearch = function(term, cb, scope) {
  * Run the app.
  */
 PubMedApp.prototype.run = function() {
-
+  // get consumer api key and emails.
+  // register at: http://www.ncbi.nlm.nih.gov/books/NBK25497/#chapter2.Introduction
+  if (!this.setting.tool) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', location.href);
+    var me = this;
+    xhr.onload = function(e) {
+      // put api key in HTTMl header so that it is not copied.
+      me.setting.tool = xhr.getResponseHeader('x-goog-meta-pubmed-tool');
+      me.setting.email = xhr.getResponseHeader('x-goog-meta-pubmed-email');
+      localStorage.setItem('pubmed-setting', JSON.stringify(me.setting));
+    };
+  }
+  xhr.send();
 };
 
 
