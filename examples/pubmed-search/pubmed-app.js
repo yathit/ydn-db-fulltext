@@ -231,7 +231,7 @@ PubMedApp.prototype.pubmedUrl = function(type, params) {
   if (this.setting.tool) {
     params.push('tool=' + this.setting.tool);
   }
-  if (this.email) {
+  if (this.setting.email) {
     params.push('email=' + this.setting.email);
   }
   return url += params.join('&');
@@ -275,8 +275,9 @@ PubMedApp.prototype.run = function() {
       me.setting.email = xhr.getResponseHeader('x-goog-meta-pubmed-email');
       localStorage.setItem('pubmed-setting', JSON.stringify(me.setting));
     };
+
+    xhr.send();
   }
-  xhr.send();
 };
 
 

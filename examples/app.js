@@ -172,7 +172,7 @@ App.xml2json = function(xml, format) {
  * @constructor
  */
 Highlighter = function(html) {
-  this.html_ = html;
+  this.html_ = html || '';
   this.loc_ = [];
   this.len_ = [];
 };
