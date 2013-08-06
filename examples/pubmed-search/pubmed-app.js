@@ -45,7 +45,7 @@ var PubMedApp = function() {
     }
   });
 
-  this.stringency = 0.5;
+  this.stringency = 1.0;
   // this.sel_stc = document.getElementById("sel_stc");
   // this.sel_stc.onchange = this.handleStringencyChanged(this);
 };
@@ -74,6 +74,9 @@ PubMedApp.prototype.ele_results_ = document.getElementById('results');
  */
 PubMedApp.prototype.renderResult = function(arr) {
   this.ele_results_.innerHTML = '';
+  if (!arr) {
+    return;
+  }
   var ul = document.createElement('ul');
   for (var i = 0; i < arr.length; i++) {
     var entry = arr[i];
@@ -97,7 +100,7 @@ PubMedApp.prototype.renderResult = function(arr) {
       var li = this.li;
       var entry = this.entry;
       if (entry.tokens.length > 1) {
-        console.log(entry);
+        // console.log(entry);
       }
       var span = li.children[0];
       var swt = li.children[1];

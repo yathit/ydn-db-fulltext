@@ -92,8 +92,8 @@ ydn.db.text.ResultEntry.fromJson = function(query, json) {
       JSON.stringify(id) + ' at 3 for value.');
   var store_name = id[0];
   var p_key = id[1];
-  var value = id[2];
   var key_path = id[2];
+  var value = id[3];
   return new ydn.db.text.ResultEntry(query, store_name, key_path, p_key, value,
       keyword, positions);
 };
