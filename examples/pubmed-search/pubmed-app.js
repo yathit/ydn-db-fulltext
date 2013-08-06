@@ -5,6 +5,7 @@
 var PubMedApp = function() {
   App.call(this);
   var db_schema = {
+    version: 17,
     fullTextCatalogs: [{
       name: 'pubmed-index',
       lang: 'en',
@@ -26,6 +27,14 @@ var PubMedApp = function() {
       }]
   };
   this.db = new ydn.db.Storage('pubmed', db_schema);
+  this.db.addEventListener('ready', function(event) {
+    this.setStatus('Ready');
+    var is_updated = event.getVersion() != event.getOldVersion();
+    if (is_updated) {
+      this.setStatus('Upgraded from version ' + event.getOldVersion() + ' to ' + event.getVersion());
+      this.db.clear();
+    }
+  }, false, this);
   var btn_search = document.getElementById('search');
   btn_search.onclick = this.handleSearch.bind(this);
   var input = document.getElementById('search_input');
@@ -232,7 +241,6 @@ PubMedApp.prototype.pubmedSearch = function(term, cb, scope) {
  */
 PubMedApp.prototype.run = function() {
   this.showStatistic();
-  this.setStatus('Ready');
 };
 
 
