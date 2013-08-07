@@ -77,7 +77,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           if (ydn.db.crud.Storage.text.DEBUG) {
             window.console.log(json);
           }
-          ft_schema.engine.analyzer.addTotalDoc(json.length);
+          ft_schema.engine.addTotalDoc(json.length);
           var req = me.getCoreOperator().dumpInternal(idx_st_name, json);
           if (i == keys.length - 1) {
             req.addBoth(
@@ -123,12 +123,12 @@ ydn.db.crud.Storage.prototype.search = function(name, query, opt_limit,
     throw new ydn.debug.error.ArgumentException('full text index catalog "' +
         name + '" not found.');
   }
-  if (!ft_schema.engine.analyzer.hasInit()) {
+  if (!ft_schema.engine.hasInit()) {
     var sources = ft_schema.getSourceNames();
     this.getCoreOperator().countInternal(sources, true).addCallbacks(
         function(cnts) {
           var total = cnts.reduce(function(p, x) {return p + x;}, 0);
-          ft_schema.engine.analyzer.setTotalDoc(total);
+          ft_schema.engine.setTotalDoc(total);
         }, function(e) {
           throw e;
         }, this);

@@ -14,7 +14,7 @@
     <script type="text/javascript" src="../../../fullproof/js/tokenizer/categ_letters_numbers.js"></script>
     <script type="text/javascript">
         goog.require('fullproof.normalizer');
-        goog.require('ydn.db.text.Analyzer');
+        goog.require('ydn.db.text.QueryEngine');
     </script>
 </head>
 <body>
@@ -36,7 +36,7 @@
         });
 
         var test_parse = function() {
-            var stda = new ydn.db.text.Analyzer(catalog);
+            var stda = new ydn.db.text.QueryEngine(catalog);
             assertEquals('normalizers', 3, stda.normalizers.length);
             assertArrayEquals('simple', ['this', 'is', 'a', 'test'],
                     stda.parse("this is a test"));
@@ -44,7 +44,7 @@
                     stda.parse("this  is a  test"));
         };
         var test_query_one = function() {
-            var stda = new ydn.db.text.Analyzer(catalog);
+            var stda = new ydn.db.text.QueryEngine(catalog);
             var words = stda.parseQuery("Dog");
             assertEquals('length', 1, words.length);
             assertEquals('value 0', 'Dog', words[0].getValue());
@@ -52,7 +52,7 @@
             assertEquals('score 0', 1, words[0].getScore());
         };
         var test_query_two = function() {
-            var stda = new ydn.db.text.Analyzer(catalog);
+            var stda = new ydn.db.text.QueryEngine(catalog);
             var words = stda.parseQuery("Dog cat");
             assertEquals('length', 2, words.length);
             assertEquals('value 0', 'Dog', words[0].getValue());
@@ -61,7 +61,7 @@
             assertEquals('total score', 1, words[0].getScore() + words[1].getScore());
         };
         var test_query_type = function() {
-            var stda = new ydn.db.text.Analyzer(catalog);
+            var stda = new ydn.db.text.QueryEngine(catalog);
             var words = stda.parseQuery('Dog');
             assertEquals('Dog', ydn.db.text.QueryType.PHONETIC, words[0].getType());
             words = stda.parseQuery('"Dog"');
@@ -80,7 +80,7 @@
             assertEquals('"Dog*"', 'Dog', words[0].getValue());
         };
         var test_scoring_long = function() {
-            var stda = new ydn.db.text.Analyzer(catalog);
+            var stda = new ydn.db.text.QueryEngine(catalog);
             var words = stda.score("Monkey is a test cow than the fish, but not that for a cow",
                     catalog.index(0), '1');
             var scores = words.map(function(x) {return x.getScore();});
@@ -99,7 +99,7 @@
             assertTrue('score 2', words[2].getScore() >= words[1].getScore());
         };
         var test_location = function() {
-            var stda = new ydn.db.text.Analyzer(catalog);
+            var stda = new ydn.db.text.QueryEngine(catalog);
             var words = stda.score("dog a dog", catalog.index(0), '1');
             // console.log(words);
             assertEquals('length', 1, words.length);

@@ -21,7 +21,7 @@
 
 
 
-goog.provide('ydn.db.text.Analyzer');
+goog.provide('ydn.db.text.QueryEngine');
 goog.require('fullproof.normalizer.english');
 goog.require('goog.array');
 goog.require('net.kornr.unicode');
@@ -33,11 +33,17 @@ goog.require('ydn.db.text.ResultSet');
 
 
 /**
- * Text analyzer.
- * @param {ydn.db.schema.fulltext.Catalog} schema
+ * @param {!ydn.db.schema.fulltext.Catalog} schema full text search schema.
  * @constructor
+ * @implements {ydn.db.schema.fulltext.Engine}
  */
-ydn.db.text.Analyzer = function(schema) {
+ydn.db.text.QueryEngine = function(schema) {
+  /**
+   * @final
+   * @protected
+   * @type {!ydn.db.schema.fulltext.Catalog}
+   */
+  this.schema = schema;
   /**
    * @protected
    * @type {number}
@@ -49,23 +55,24 @@ ydn.db.text.Analyzer = function(schema) {
    * @protected
    * @type {!Array.<!ydn.db.text.Normalizer>}
    */
-  this.normalizers = ydn.db.text.Analyzer.getNormalizers(schema);
+  this.normalizers = ydn.db.text.QueryEngine.getNormalizers(schema);
 };
 
 
 /**
  * @param {number} total total_doc the total number of documents.
  */
-ydn.db.text.Analyzer.prototype.setTotalDoc = function(total) {
+ydn.db.text.QueryEngine.prototype.setTotalDoc = function(total) {
   this.total_doc = total;
 };
 
 
 /**
- * @return {boolean} true if total doc has set.
+ * @return {boolean} true if engine is initialized.
  */
-ydn.db.text.Analyzer.prototype.hasInit = function() {
-  return goog.isDef(this.total_doc);
+ydn.db.text.QueryEngine.prototype.hasInit = function() {
+  // return goog.isDef(this.total_doc);
+  return true;
 };
 
 
@@ -73,7 +80,7 @@ ydn.db.text.Analyzer.prototype.hasInit = function() {
  * Increment total number of documents.
  * @param {number} ex
  */
-ydn.db.text.Analyzer.prototype.addTotalDoc = function(ex) {
+ydn.db.text.QueryEngine.prototype.addTotalDoc = function(ex) {
   this.total_doc += ex;
 };
 
@@ -82,7 +89,7 @@ ydn.db.text.Analyzer.prototype.addTotalDoc = function(ex) {
  * @param {ydn.db.schema.fulltext.Catalog} schema
  * @return {!Array.<!ydn.db.text.Normalizer>}
  */
-ydn.db.text.Analyzer.getNormalizers = function(schema) {
+ydn.db.text.QueryEngine.getNormalizers = function(schema) {
   if (schema.lang == 'en') {
     return fullproof.normalizer.english.getNormalizers(schema.normalizers);
   } else {
@@ -96,7 +103,7 @@ ydn.db.text.Analyzer.getNormalizers = function(schema) {
  * @param {string} word input.
  * @return {string?} normalized word.
  */
-ydn.db.text.Analyzer.prototype.normalize = function(word) {
+ydn.db.text.QueryEngine.prototype.normalize = function(word) {
   for (var i = 0; i < this.normalizers.length; i++) {
     var w = this.normalizers[i].normalize(word);
     // console.log(word, w);
@@ -117,7 +124,7 @@ ydn.db.text.Analyzer.prototype.normalize = function(word) {
  * @param {string} text
  * @return {Array.<string>}
  */
-ydn.db.text.Analyzer.prototype.parse = function(text) {
+ydn.db.text.QueryEngine.prototype.parse = function(text) {
   var tokens = [];
   // Note: parse is always sync.
   net.kornr.unicode.tokenize(text, function(start, len) {
@@ -129,11 +136,31 @@ ydn.db.text.Analyzer.prototype.parse = function(text) {
 
 
 /**
+ * Free text query.
+ * @param {string} catalog_name
+ * @param {string} query
+ * @param {number=} opt_limit
+ * @param {number=} opt_threshold
+ * @return {ydn.db.text.ResultSet}
+ */
+ydn.db.text.QueryEngine.prototype.query = function(catalog_name, query,
+                                                   opt_limit, opt_threshold) {
+  var tokens = this.parseQuery(query);
+  if (tokens.length == 0) {
+    return null;
+  }
+  var limit = opt_limit || 10;
+  var threshold = opt_threshold || 1;
+  return new ydn.db.text.ResultSet(this.schema, tokens, limit, threshold);
+};
+
+
+/**
  * Score a query.
  * @param {string} text
  * @return {!Array.<!ydn.db.text.QueryToken>}
  */
-ydn.db.text.Analyzer.prototype.parseQuery = function(text) {
+ydn.db.text.QueryEngine.prototype.parseQuery = function(text) {
   var tokens = [];
   var positions = [];
   // Note: parse is always sync.
@@ -190,7 +217,7 @@ ydn.db.text.Analyzer.prototype.parseQuery = function(text) {
  * @param {IDBKey} key primary key.
  * @return {!Array.<!ydn.db.text.IndexEntry>} scores for each unique token.
  */
-ydn.db.text.Analyzer.prototype.score = function(text, inv_index, key) {
+ydn.db.text.QueryEngine.prototype.score = function(text, inv_index, key) {
   var tokens = [];
   var positions = [];
   // Note: parse is always sync.
@@ -226,3 +253,24 @@ ydn.db.text.Analyzer.prototype.score = function(text, inv_index, key) {
   return scores;
 };
 
+
+/**
+ * Analyze an indexing value.
+ * @param {string} store_name the store name in which document belong.
+ * @param {IDBKey} key primary of the document.
+ * @param {!Object} obj the document to be indexed.
+ * @return {Array.<!ydn.db.text.IndexEntry>} score for each token.
+ */
+ydn.db.text.QueryEngine.prototype.analyze = function(store_name, key, obj) {
+  var scores = [];
+  for (var i = 0; i < this.schema.count(); i++) {
+    var source = this.schema.index(i);
+    if (source.getStoreName() == store_name) {
+      var text = ydn.db.utils.getValueByKeys(obj, source.getKeyPath());
+      if (goog.isString(text)) {
+        scores = scores.concat(this.score(text, source, key));
+      }
+    }
+  }
+  return scores;
+};
