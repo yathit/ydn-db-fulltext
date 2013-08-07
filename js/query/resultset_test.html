@@ -33,7 +33,7 @@
                     weight: 0.6
                 }]
         });
-        var query = new ydn.db.text.QueryToken(NaN, 'tiger', 'TGR', 0, 'article', 'title');
+        var query = new ydn.db.text.QueryToken(ydn.db.text.QueryType.PHONETIC, 'tiger', 'TGR', 0, 1);
 
         var test_add_result = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
@@ -97,25 +97,25 @@
             */
         };
         var test_scoring = function() {
+            var query = new ydn.db.text.QueryToken(ydn.db.text.QueryType.PHONETIC, 'tiger', 'TGR', 0, 1);
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
             rs.addResult(query, [{
                 value: 'tiger',
-                score: 1,
                 loc: [1],
                 id: ['article', 'key1', 'title', 'tiger']
             }]);
             var results = rs.collect();
-            assertEquals('basic score', 1, results[0].score);
+            assertEquals('basic score', ydn.db.text.QueryType.PHONETIC, results[0].score);
 
+            query = new ydn.db.text.QueryToken(ydn.db.text.QueryType.PHONETIC, 'tiger', 'TGR', 0, 1);
             rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
             rs.addResult(query, [{
                 value: 'tiger',
-                score: 1,
                 loc: [1],
                 id: ['article', 'key2', 'body', 'tiger']
             }]);
             results = rs.collect();
-            assertEquals('weighted score', 0.6, results[0].score);
+            assertEquals('weighted score', ydn.db.text.QueryType.PHONETIC * 0.6, results[0].score);
         };
         var test_scoring_composite = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
@@ -132,7 +132,7 @@
             }]);
             var results = rs.collect();
             assertEquals('number of result', 1, results.length);
-            assertEquals('compound score', 1.6, results[0].score);
+            assertEquals('compound score', 0.96, results[0].score);
         };
         var test_ranking_multiple_index = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
@@ -149,7 +149,7 @@
             // console.log(results);
             assertEquals('number of result', 1, results.length);
             assertEquals('number of tokens', 2, results[0].tokens.length);
-            assertEquals('compound score', 1.6, results[0].score);
+            assertEquals('compound score', 0.96, results[0].score);
         };
         var test_ranking_multiple_cases = function() {
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
