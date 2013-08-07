@@ -7,7 +7,7 @@ var PubMedApp = function() {
   this.setting = cache ? JSON.parse(cache) : {};
   App.call(this);
   var db_schema = {
-    version: 21,
+    version: 22,
     fullTextCatalogs: [{
       name: 'pubmed-index',
       lang: 'en',
@@ -306,8 +306,8 @@ PubMedApp.prototype.tutor = function() {
     this.ele_input_.placeholder = '"MDM4"';
     this.ele_tutor_.innerHTML = 'Exact stern are searched by using double quote: <code>"MDM4"</code>';
   } else if (hint == 'mdm4 p53' || (n_entry > 40 && n_entry < 60)) {
-    this.ele_input_.placeholder = 'p53 -center';
-    this.ele_tutor_.innerHTML = 'Use <code>-</code> to remove a term: <code>p53 -center</code>';
+    this.ele_input_.placeholder = 'p53 -cancer';
+    this.ele_tutor_.innerHTML = 'Use <code>-</code> to remove a term: <code>p53 -cancer</code>';
   } else if (hint == 'p53 mdm4') {
     this.ele_input_.placeholder = 'mdm4 p53';
     this.ele_tutor_.innerHTML = 'If we flip the two search terms, <code>mdm4 p53</code>, more weight is put in first terms';
