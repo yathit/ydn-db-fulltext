@@ -75,6 +75,11 @@
             /* border: thin solid gray; */
             padding: 0 4px;
         }
+        #tutor {
+            font-family: Arial, sans-serif;
+            font-size: smaller;
+            color: darkcyan;
+        }
         .toggle {
             padding: 0 4px;
         }
@@ -87,23 +92,12 @@
 <h1>Pubmed Search</h1>
 
 <div style="margin: 1em" id="application">
-    <div style="display: none">
-        <span>Stringency</span>
-        <select id="sel_stc">
-            <option>1.0</option>
-            <option>0.9</option>
-            <option>0.8</option>
-            <option>0.7</option>
-            <option>0.6</option>
-            <option>0.5</option>
-            <option selected>0.4</option>
-            <option>0.3</option>
-        </select>
-    </div>
+
     <div>
         <input type="text" id="search_input" class="typebox">
         <button id="search">Search</button>
     </div>
+    <div id="tutor"></div>
     <div id="results">
     </div>
 </div>

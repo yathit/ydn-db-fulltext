@@ -105,6 +105,11 @@ ydn.db.text.ResultEntry.fromJson = function(query, json) {
   var p_key = id[1];
   var key_path = id[2];
   var value = id[3];
+  if (query.type == ydn.db.text.QueryType.EXACT) {
+    if (value != query.value) {
+      return null;
+    }
+  }
   return new ydn.db.text.ResultEntry(query, store_name, key_path, p_key, value,
       keyword, positions);
 };

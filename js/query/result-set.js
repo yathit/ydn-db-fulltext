@@ -87,8 +87,9 @@ ydn.db.text.ResultSet.prototype.nextLookup = function(cb) {
       key_range = ydn.db.KeyRange.starts(key);
       cb(store_name, index_name, key_range, token);
       this.result_count_++;
-    } else {
+    } else { // EXACT and NOT
       index_name = 'value';
+      // Note: value index are in lower case.
       key = token.getValue().toLowerCase();
       key_range = ydn.db.KeyRange.only(key);
       cb(store_name, index_name, key_range, token);
@@ -130,7 +131,9 @@ ydn.db.text.ResultSet.prototype.addResult = function(q, results) {
   // (results[0] ? JSON.stringify(results[0].id) : ''))
   for (var i = 0; i < results.length; i++) {
     var entry = ydn.db.text.ResultEntry.fromJson(query, results[i]);
-    this.results.push(entry);
+    if (entry) {
+      this.results.push(entry);
+    }
   }
   this.result_count_--;
   if (this.result_count_ == 0) {

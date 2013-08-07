@@ -36,7 +36,9 @@ var PubMedApp = function() {
       this.setStatus('Upgraded from version ' + event.getOldVersion() + ' to ' + event.getVersion());
       this.db.clear();
     }
-    this.showStatistic();
+    this.showStatistic(function() {
+      this.tutor();
+    }, this);
   }, false, this);
   this.db.addEventListener('fail', function(event) {
     this.setStatus('Database failed ' + event.getError().name);
@@ -145,6 +147,7 @@ PubMedApp.prototype.renderResult = function(arr) {
     ul.appendChild(li);
   }
   this.ele_results_.appendChild(ul);
+  this.tutor();
 };
 
 
@@ -162,14 +165,16 @@ PubMedApp.prototype.showStatistic = function(cb, scope) {
   }, this);
 };
 
+PubMedApp.prototype.ele_input_ = document.getElementById('search_input');
+
 
 /**
  * @param {Event} e
  */
 PubMedApp.prototype.handleSearch = function(e) {
   var start = Date.now();
-  var ele = document.getElementById('search_input');
-  var term = ele.value;
+
+  var term = this.ele_input_.value;
   var rq = this.db.search('pubmed-index', term);
   rq.progress(function(pe) {
     // console.log(pe.length + ' results found');
@@ -282,6 +287,36 @@ PubMedApp.prototype.run = function() {
     };
 
     xhr.send();
+  }
+};
+
+
+PubMedApp.prototype.ele_tutor_ = document.getElementById('tutor');
+
+PubMedApp.prototype.tutor = function() {
+  if (!('placeholder' in this.ele_input_)) {
+    return;
+  }
+  var hint = this.ele_input_.placeholder;
+  var n_entry = this.ele_entry_.textContent;
+  if (n_entry == 0) {
+    this.ele_input_.placeholder = 'p53';
+    this.ele_tutor_.innerHTML = 'Enter a serach term, such as: <code>p53</code>';
+  } else if (n_entry <= 20) {
+    this.ele_input_.placeholder = '"MDM4"';
+    this.ele_tutor_.innerHTML = 'Exact stern are searched by using double quote: <code>"MDM4"</code>';
+  } else if (hint == 'mdm4 p53' || (n_entry > 40 && n_entry < 60)) {
+    this.ele_input_.placeholder = 'p53 -center';
+    this.ele_tutor_.innerHTML = 'Use <code>-</code> to remove a term: <code>p53 -center</code>';
+  } else if (hint == 'p53 mdm4') {
+    this.ele_input_.placeholder = 'mdm4 p53';
+    this.ele_tutor_.innerHTML = 'If we flip the two search terms, <code>mdm4 p53</code>, more weight is put in first terms';
+  } else if (n_entry <= 40) {
+    this.ele_input_.placeholder = 'p53 mdm4';
+    this.ele_tutor_.innerHTML = 'Search two terms: <code>p53 mdm4</code>';
+  } else {
+    this.ele_input_.placeholder = '';
+    this.ele_tutor_.innerHTML = '';
   }
 };
 
