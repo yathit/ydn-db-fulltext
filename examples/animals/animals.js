@@ -24,7 +24,7 @@ var Animals = function() {
         autoIncrement: true
       }]
   };
-  this.db = new ydn.db.Storage('animals', db_schema);
+  this.db = new ydn.db.Storage('animals-2', db_schema);
   var btn_search = document.getElementById('search');
   btn_search.addEventListener('click', this.handleSearch.bind(this));
   var input = document.getElementById('search_input');
