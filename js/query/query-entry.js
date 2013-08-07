@@ -39,7 +39,8 @@ goog.require('ydn.db.text.Token');
 ydn.db.text.QueryToken = function(type, value, keyword, position, weight) {
   goog.base(this, value, keyword);
   goog.asserts.assert(goog.isNumber(position) && !isNaN(position),
-      'position ' + value);
+      'position ' + value + ' expect a number, but ' + position + ' of type ' +
+      typeof position + ' found.');
   /**
    * Location of the keyword in the document or query string.
    * @final
@@ -73,15 +74,24 @@ goog.inherits(ydn.db.text.QueryToken, ydn.db.text.Token);
 ydn.db.text.QueryType = {
   PHONETIC: 0.6,
   PREFIX: 0.4,
+  NONE: 0.8,
   NOT: 0,
   EXACT: 1
 };
 
 
 /**
+ * @return {ydn.db.text.QueryType} query type.
+ */
+ydn.db.text.QueryToken.prototype.getType = function() {
+  return this.type;
+};
+
+
+/**
  * @return {number} element score.
  */
-ydn.db.text.QueryToken.prototype.getWeight = function() {
+ydn.db.text.QueryToken.prototype.getScore = function() {
   return this.pos_weight * this.type * this.avg_factor;
 };
 

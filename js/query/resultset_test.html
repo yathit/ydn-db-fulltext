@@ -42,9 +42,8 @@
               results[i] = {
                   keyword: 'first' + i,
                   value: 'first' + i,
-                  keyPath: 'title',
                   loc: [2],
-                  id: ['article', 'key' + i, 'first' + i]
+                  id: ['article', 'key' + i, 'title', 'first' + i]
               }
             }
             rs.addResult(query, results);
@@ -54,32 +53,27 @@
             var rs = new ydn.db.text.ResultSet(ft_schema, [query], 10, 1);
             rs.addResult(query, [{
                 value: 'a',
-                keyPath: 'title',
                 loc: [2],
-                id: ['article', 'key1', 'a']
-            }, {
-                value: 'b',
-                keyPath: 'title',
-                loc: [2],
-                id: ['article', 'key2', 'b']
+                id: ['article', 'key1', 'title', 'a']
             }, {
                 value: 'b',
                 loc: [2],
-                keyPath: 'title',
-                id: ['article', 'key2', 'b'] // repeat entry
+                id: ['article', 'key2', 'title', 'b']
+            }, {
+                value: 'b',
+                loc: [2],
+                id: ['article', 'key2', 'title', 'b'] // repeat entry
             }]);
             var results = rs.collect();
             assertEquals('repeat entry', 2, results.length);
             rs.addResult(query, [{
                 value: 'b',
                 loc: [10],
-                keyPath: 'title',
-                id: ['article', 'key1', 'a']// repeat entry
+                id: ['article', 'key1', 'title', 'a']// repeat entry
             }, {
                 value: 'c',
                 loc: [3],
-                keyPath: 'title',
-                id: ['article', 'key4', 'c']
+                id: ['article', 'key4', 'title', 'c']
             }]);
             results = rs.collect();
             assertEquals('repeat entry in next', 3, results.length);
@@ -108,8 +102,7 @@
                 value: 'tiger',
                 score: 1,
                 loc: [1],
-                keyPath: 'title',
-                id: ['article', 'key1', 'tiger']
+                id: ['article', 'key1', 'title', 'tiger']
             }]);
             var results = rs.collect();
             assertEquals('basic score', 1, results[0].score);
@@ -119,8 +112,7 @@
                 value: 'tiger',
                 score: 1,
                 loc: [1],
-                keyPath: 'body',
-                id: ['article', 'key2', 'tiger']
+                id: ['article', 'key2', 'body', 'tiger']
             }]);
             results = rs.collect();
             assertEquals('weighted score', 0.6, results[0].score);
@@ -131,14 +123,12 @@
                 value: 'tiger',
                 score: 1,
                 loc: [1],
-                keyPath: 'title',
-                id: ['article', 'key3', 'tiger']
+                id: ['article', 'key3', 'title', 'tiger']
             }, {
                 value: 'tiger',
                 score: 1,
                 loc: [1],
-                keyPath: 'body',
-                id: ['article', 'key3', 'tiger']
+                id: ['article', 'key3', 'body', 'tiger']
             }]);
             var results = rs.collect();
             assertEquals('number of result', 1, results.length);
@@ -149,13 +139,11 @@
             rs.addResult(query, [{
                 value: 'tiger',
                 loc: [1],
-                keyPath: 'body',
-                id: ['article', 'key1', 'tiger']
+                id: ['article', 'key1', 'body', 'tiger']
             }, {
                 value: 'tiger',
                 loc: [1],
-                keyPath: 'title',
-                id: ['article', 'key1', 'tiger']
+                id: ['article', 'key1', 'title', 'tiger']
             }]);
             var results = rs.collect();
             // console.log(results);
@@ -169,14 +157,12 @@
                 keyword: 'TGR',
                 value: 'tiger',
                 loc: [10],
-                keyPath: 'title',
-                id: ['article', 'key1', 'tiger']
+                id: ['article', 'key1', 'title', 'tiger']
             }, {
                 keyword: 'TGR',
                 value: 'tiger',
                 loc: [1],
-                keyPath: 'title',
-                id: ['article', 'key1', 'Tiger']
+                id: ['article', 'key1', 'title', 'Tiger']
             }]);
             var results = rs.collect();
             assertEquals('number of result', 1, results.length);

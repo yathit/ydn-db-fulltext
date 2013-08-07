@@ -131,9 +131,9 @@ ydn.db.text.Analyzer.prototype.parse = function(text) {
 /**
  * Score a query.
  * @param {string} text
- * @return {Array.<ydn.db.text.QueryToken>}
+ * @return {!Array.<!ydn.db.text.QueryToken>}
  */
-ydn.db.text.Analyzer.prototype.scoreQuery = function(text) {
+ydn.db.text.Analyzer.prototype.parseQuery = function(text) {
   var tokens = [];
   var positions = [];
   // Note: parse is always sync.
@@ -147,19 +147,37 @@ ydn.db.text.Analyzer.prototype.scoreQuery = function(text) {
     nTokens[i] = this.normalize(tokens[i]);
   }
   var scores = [];
-  var wordcount = 0;
+  var total_score = 0;
   for (var i = 0; i < tokens.length; i++) {
-    var word = nTokens[i];
+    var word = tokens[i];
+    var keyword = nTokens[i];
     // console.log(tokens[i], word);
-    if (goog.isDefAndNotNull(word)) {
-      var score = goog.array.find(scores, function(s) {
-        return s.getKeyword() == word;
-      });
-      if (!score) {
-        score = new ydn.db.text.QueryToken(tokens[i], word, positions[i]);
-        scores.push(score);
-      }
+    var is_prefix = text.charAt(positions[i] + word.length) == '*';
+    var last_quote_pos = is_prefix ?
+        positions[i] + word.length + 1 : positions[i] + word.length;
+    var is_quoted = text.charAt(positions[i] - 1) == '"' &&
+        text.charAt(last_quote_pos) == '"';
+    var minus_pos = is_quoted ? positions[i] - 2 : positions[i] - 1;
+    var not_query = text.charAt(minus_pos) == '-';
+    var type = ydn.db.text.QueryType.NONE;
+    if (is_prefix) {
+      type = ydn.db.text.QueryType.PREFIX;
+    } else if (is_quoted) {
+      type = ydn.db.text.QueryType.EXACT;
+    } else if (not_query) {
+      type = ydn.db.text.QueryType.NOT;
+    } else if (goog.isDefAndNotNull(keyword)) {
+      type = ydn.db.text.QueryType.PHONETIC;
     }
+    var pos_weight = 1 / (i + 2);
+    var query = new ydn.db.text.QueryToken(type, word, keyword, positions[i],
+        pos_weight);
+    scores.push(query);
+    total_score += query.getScore();
+  }
+  // normalize total score to 1.
+  for (var i = 0; i < scores.length; ++i) {
+    scores[i].avg_factor = 1 / total_score;
   }
 
   return scores;

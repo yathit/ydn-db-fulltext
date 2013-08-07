@@ -61,12 +61,14 @@
         #results {
             overflow-y: auto;
         }
-        #status-bar {
-            background-color: #d3d3d3;
+        footer {
             position: fixed;
             bottom: 0;
             width: 100%;
             margin: 0;
+        }
+        #status-bar {
+            background-color: #d3d3d3;
             padding: 4px;
         }
         #status-bar span {
@@ -105,7 +107,7 @@
     <div id="results">
     </div>
 </div>
-
+ <footer>
 <div id="status-bar">
     <span id="entry-count" title="number of entries">
         0
@@ -117,7 +119,7 @@
         starting...
     </span>
 </div>
-
+ </footer>
 <script type="text/javascript" src="../app.js"></script>
 <script type="text/javascript" src="pubmed-app.js"></script>
 <script type="text/javascript">

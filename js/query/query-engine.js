@@ -51,7 +51,7 @@ ydn.db.text.QueryEngine = function(schema) {
  */
 ydn.db.text.QueryEngine.prototype.query = function(catalog_name, query,
                                                    opt_limit, opt_threshold) {
-  var tokens = this.analyzer.scoreQuery(query);
+  var tokens = this.analyzer.parseQuery(query);
   if (tokens.length == 0) {
     return null;
   }

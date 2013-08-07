@@ -56,14 +56,20 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
     var inject = function(arr) {
       var store_name = store.getName();
       if (ydn.db.crud.Storage.text.DEBUG) {
-        window.console.log(mth + ' indexing ' + store_name +
-            arr.length + ' objects');
+        window.console.log(mth + ': indexing ' +
+            arr.length + ' objects for ' + store_name);
       }
       rq.await(function(keys, is_error, cb) {
         var idx_st_name = ft_schema.getName();
+        if (!goog.isArray(keys)) {
+          keys = [keys];
+        }
         for (var i = 0; i < keys.length; i++) {
-          var doc = /** @type {!Object} */ (arr[i]);
           var p_key = /** @type {IDBKey} */ (keys[i]);
+          if (!goog.isDefAndNotNull(p_key)) {
+            continue;
+          }
+          var doc = /** @type {!Object} */ (arr[i]);
           var scores = ft_schema.engine.analyze(store_name, p_key, doc);
           var json = scores.map(function(x) {
             return x.toJson();

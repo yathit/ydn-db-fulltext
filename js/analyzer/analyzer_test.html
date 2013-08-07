@@ -45,11 +45,39 @@
         };
         var test_query_one = function() {
             var stda = new ydn.db.text.Analyzer(catalog);
-            var words = stda.scoreQuery("Dog");
+            var words = stda.parseQuery("Dog");
             assertEquals('length', 1, words.length);
             assertEquals('value 0', 'Dog', words[0].getValue());
             assertEquals('key 0', 'TK', words[0].getKeyword());
             assertEquals('score 0', 1, words[0].getScore());
+        };
+        var test_query_two = function() {
+            var stda = new ydn.db.text.Analyzer(catalog);
+            var words = stda.parseQuery("Dog cat");
+            assertEquals('length', 2, words.length);
+            assertEquals('value 0', 'Dog', words[0].getValue());
+            assertEquals('value 1', 'cat', words[1].getValue());
+            assertTrue('score 0 > 1', words[0].getScore() > words[1].getScore());
+            assertEquals('total score', 1, words[0].getScore() + words[1].getScore());
+        };
+        var test_query_type = function() {
+            var stda = new ydn.db.text.Analyzer(catalog);
+            var words = stda.parseQuery('Dog');
+            assertEquals('Dog', ydn.db.text.QueryType.PHONETIC, words[0].getType());
+            words = stda.parseQuery('"Dog"');
+            assertEquals('"Dog"', ydn.db.text.QueryType.EXACT, words[0].getType());
+            words = stda.parseQuery('"Dog');
+            assertEquals('"Dog', ydn.db.text.QueryType.PHONETIC, words[0].getType());
+            assertEquals('"Dog', 'Dog', words[0].getValue());
+            words = stda.parseQuery('-Dog');
+            assertEquals('"Dog', ydn.db.text.QueryType.NOT, words[0].getType());
+            assertEquals('"Dog', 'Dog', words[0].getValue());
+            words = stda.parseQuery('Dog*');
+            assertEquals('Dog*', ydn.db.text.QueryType.PREFIX, words[0].getType());
+            assertEquals('Dog*', 'Dog', words[0].getValue());
+            words = stda.parseQuery('"Dog*"');
+            assertEquals('"Dog*"', ydn.db.text.QueryType.PREFIX, words[0].getType());
+            assertEquals('"Dog*"', 'Dog', words[0].getValue());
         };
         var test_scoring_long = function() {
             var stda = new ydn.db.text.Analyzer(catalog);

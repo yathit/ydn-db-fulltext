@@ -38,6 +38,10 @@ var PubMedApp = function() {
     }
     this.showStatistic();
   }, false, this);
+  this.db.addEventListener('fail', function(event) {
+    this.setStatus('Database failed ' + event.getError().name);
+    this.db = null;
+  }, false, this);
   var btn_search = document.getElementById('search');
   btn_search.onclick = this.handleSearch.bind(this);
   var input = document.getElementById('search_input');
