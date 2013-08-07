@@ -92,6 +92,7 @@ PubMedApp.prototype.ele_results_ = document.getElementById('results');
 PubMedApp.prototype.renderResult = function(arr) {
   this.ele_results_.innerHTML = '';
   if (!arr) {
+    this.setStatus('no results', true);
     return;
   }
   var ul = document.createElement('ul');

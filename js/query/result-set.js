@@ -67,12 +67,6 @@ ydn.db.text.ResultSet = function(ft_schema, query_tokens,
    * @protected
    */
   this.threshold = opt_threshold || NaN;
-  /**
-   * Lookup iteration lap lap.
-   * @type {number}
-   * @private
-   */
-  this.lap_ = 0;
   this.result_count_ = 0;
 };
 
@@ -81,29 +75,33 @@ ydn.db.text.ResultSet = function(ft_schema, query_tokens,
  * @inheritDoc
  */
 ydn.db.text.ResultSet.prototype.nextLookup = function(cb) {
-  if (this.lap_ > 2) {
-    throw new ydn.debug.error.InvalidOperationException('too many loopup laps');
-  }
   var key, key_range, index_name;
   var store_name = this.catalog.getName();
   for (var j = 0; j < this.query_tokens.length; j++) {
     var token = this.query_tokens[j];
-    if (this.lap_ == 0) {
+    var t = token.getType();
+    if (t == ydn.db.text.QueryType.PREFIX ||
+        t == ydn.db.text.QueryType.PHONETIC) {
       index_name = 'value';
       key = token.getValue().toLowerCase();
       key_range = ydn.db.KeyRange.starts(key);
-    } else if (this.lap_ == 1) {
+      cb(store_name, index_name, key_range, token);
+      this.result_count_++;
+    } else {
+      index_name = 'value';
+      key = token.getValue().toLowerCase();
+      key_range = ydn.db.KeyRange.only(key);
+      cb(store_name, index_name, key_range, token);
+      this.result_count_++;
+    }
+    if (t == ydn.db.text.QueryType.PHONETIC) {
       index_name = 'keyword';
       key = token.getKeyword();
       key_range = ydn.db.KeyRange.only(key);
-    } else {
-      throw new ydn.debug.error.InvalidOperationException(
-          'too many loopup laps');
+      cb(store_name, index_name, key_range, token);
+      this.result_count_++;
     }
-    cb(store_name, index_name, key_range, token);
-    this.result_count_++;
   }
-  this.lap_++;
 };
 
 
@@ -141,7 +139,7 @@ ydn.db.text.ResultSet.prototype.addResult = function(q, results) {
   var last_token = this.query_tokens[this.query_tokens.length - 1];
   var is_last_token = last_token.position === query.position;
   if (is_last_token) {
-    return this.lap_ >= 2 ? true : null;
+    return true;
   } else {
     return null; // no op
   }
@@ -154,8 +152,21 @@ ydn.db.text.ResultSet.prototype.addResult = function(q, results) {
  */
 ydn.db.text.ResultSet.prototype.collect = function() {
   var arr = [];
+  var not_results = [];
   for (var i = 0; i < this.results.length; i++) {
-    var entry = new ydn.db.text.RankEntry(this.catalog, this.results[i]);
+    var res = this.results[i];
+    var qt = res.query.getType();
+    if (qt == ydn.db.text.QueryType.NOT) {
+      var n_idx = goog.array.findIndex(not_results, function(a) {
+        return a.getPrimaryKey() == res.getPrimaryKey() &&
+            a.getStoreName() == res.getStoreName();
+      });
+      if (n_idx == -1) {
+        not_results.push(res);
+      }
+      continue;
+    }
+    var entry = new ydn.db.text.RankEntry(this.catalog, res);
     var ex_idx = goog.array.findIndex(arr, function(a) {
       return a.getPrimaryKey() == entry.getPrimaryKey() &&
           a.getStoreName() == entry.getStoreName();
@@ -170,13 +181,20 @@ ydn.db.text.ResultSet.prototype.collect = function() {
     }
     goog.array.binaryInsert(arr, entry, ydn.db.text.RankEntry.cmp);
   }
-  /*
-  for (var i = 0; i < arr.length; i++) {
-    for (var j = 0; j < arr[i].count(); j++) {
-      var entry = arr[i].entry(j);
+  // filter not
+  // console.log(arr, not_results);
+  for (var j = 0; j < not_results.length; j++) {
+    var n = not_results[j];
+    for (var i = arr.length - 1; i >= 0; --i) {
+      var e = arr[i];
+      if (n.getPrimaryKey() == e.getPrimaryKey() &&
+          n.getStoreName() == e.getStoreName()) {
+        // console.log('not', n.getStoreName(), n.getPrimaryKey())
+        arr.splice(j, 1);
+        break;
+      }
     }
   }
-  */
   var result = arr.map(function(x) {
     return x.toJson();
   });

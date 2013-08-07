@@ -43,6 +43,7 @@ ydn.db.text.ResultEntry = function(query, store_name, key_path, primary_key,
   goog.base(this, store_name, key_path, primary_key, value,
       keyword, opt_positions);
   /**
+   * @final
    * @type {ydn.db.text.QueryToken}
    */
   this.query = query;

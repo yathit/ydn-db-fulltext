@@ -79,6 +79,16 @@
             assertEquals('"Dog*"', ydn.db.text.QueryType.PREFIX, words[0].getType());
             assertEquals('"Dog*"', 'Dog', words[0].getValue());
         };
+        var test_parse_not = function() {
+            var stda = new ydn.db.text.QueryEngine(catalog);
+            var words = stda.parseQuery("dog -cat");
+            //console.log(words);
+            assertEquals('length', 2, words.length);
+            assertEquals('value 0', 'dog', words[0].getValue());
+            assertEquals('value 1', 'cat', words[1].getValue());
+            assertEquals('type 0', ydn.db.text.QueryType.PHONETIC, words[0].getType());
+            assertEquals('type 1', ydn.db.text.QueryType.NOT, words[1].getType());
+        };
         var test_scoring_long = function() {
             var stda = new ydn.db.text.QueryEngine(catalog);
             var words = stda.score("Monkey is a test cow than the fish, but not that for a cow",

@@ -85,6 +85,43 @@
             assertTrue('score 1', results[1].score > 0 && results[1].score < 1);
             assertTrue('score 0 > score 1', results[0].score > results[1].score);
         };
+        var test_not = function() {
+            var q1 = new ydn.db.text.QueryToken(ydn.db.text.QueryType.PHONETIC, 'tiger', 'TGR', 0, 3/5);
+            var q2 = new ydn.db.text.QueryToken(ydn.db.text.QueryType.PHONETIC, 'tigress', 'TGS', 5, 2/5);
+            var q3 = new ydn.db.text.QueryToken(ydn.db.text.QueryType.NOT, 'tigress', 'TGS', 5, 2/5);
+            var match1 = [{
+                keyword: 'TGR',
+                value: 'tiger',
+                loc: [10],
+                id: ['article', 'key1', 'title', 'tiger']
+            }, {
+                keyword: 'TGR',
+                value: 'tiger',
+                loc: [10],
+                id: ['article', 'key2', 'title', 'tiger']
+            }];
+            var match2 = [{
+                keyword: 'TGS',
+                value: 'tigress',
+                loc: [10],
+                id: ['article', 'key2', 'title', 'lion']
+            }];
+            var rs = new ydn.db.text.ResultSet(ft_schema, [q1, q2]);
+            rs.addResult(q1, match1);
+            rs.addResult(q2, match2);
+            var results = rs.collect();
+            // console.log(results);
+            assertEquals('number of result', 2, results.length);
+            assertEquals('result 0', 'key1', results[0].primaryKey);
+            assertEquals('result 1', 'key2', results[1].primaryKey);
+            var rs2 = new ydn.db.text.ResultSet(ft_schema, [q1, q3]);
+            rs2.addResult(q1, match1);
+            rs2.addResult(q3, match2);
+            var results = rs2.collect();
+            // console.log(results);
+            assertEquals('number of not result', 1, results.length);
+            assertEquals('result 0', 'key2', results[0].primaryKey);
+        };
     </script>
 </body>
 </html>
