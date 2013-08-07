@@ -215,7 +215,7 @@ PubMedApp.prototype.pubmedFetch = function(ids, cb, scope) {
     window.ans = json;
     var articles = [];
     if (json.PubmedArticleSet) {
-      var arts = json.PubmedArticleSet[1].PubmedArticle;
+      var arts = json.PubmedArticleSet[1].PubmedArticle || [];
       for (var i = 0; i < arts.length; i++) {
         var cit = arts[i];
         var art = cit.MedlineCitation.Article;

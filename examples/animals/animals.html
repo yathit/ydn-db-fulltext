@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>YDN-DB-TEXT example: Animals species database</title>
+    <title>YDN-DB-TEXT full text search example</title>
 
     <script src="../../../closure-library/closure/goog/base.js"></script>
     <script src="../../../closure-library/closure/goog/deps.js"></script>
@@ -62,17 +62,19 @@
             overflow-y: auto;
         }
         #ref {
-            position: fixed;
-            bottom: 1.5em;
-            padding: 1em;
+            padding: 4px;
             background-color: white;
+            font-size: smaller;
+            color: gray;
         }
-        #status {
-            background-color: #d3d3d3;
+        footer {
             position: fixed;
             bottom: 0;
             width: 100%;
             margin: 0;
+        }
+        #status {
+            background-color: #d3d3d3;
             padding: 4px;
         }
     </style>
@@ -83,22 +85,35 @@
 <div style="margin: 1em" id="application">
     Type an animal name here:
     <div>
-        <input type="text" id="search_input" class="typebox">
+        <input type="text" id="search_input" class="typebox" list="search_hint">
+        <div class="aListCon">
+        <datalist id="search_hint">
+
+        </datalist>
+        </div>
         <button id="search">Search</button>
     </div>
     <div style="clear:both" id="results">
     </div>
 </div>
+<footer>
 <div id="ref">
+    <div>
+        This web app show auto suggestion as search query enter, but the native datalist shows only on certain browsers.
+        Production quality web app should use some auto suggestion widget UI library.
+    </div>
+    <div>
     This application provides an example of fulltext search in the species
     database from
     the <a href="http://gapanalysis.usgs.gov/data/species-data/">U.S. Geological
     Survey Gap Analysis Program</a>
+    </div>
 </div>
 
 <div id="status">
     starting...
 </div>
+</footer>
 <script type="text/javascript" src="animals.js"></script>
 <script type="text/javascript">
     var app = new Animals();

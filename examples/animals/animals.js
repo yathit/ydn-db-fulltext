@@ -31,11 +31,49 @@ var Animals = function() {
   input.onkeyup = this.handleInputChanged.bind(this);
 };
 
+Animals.prototype.ele_hint_ = document.getElementById('search_hint');
+
+/**
+ * @param {Array.<ydn.db.text.RankEntry>} arr
+ */
+Animals.prototype.hintResult = function(arr) {
+  if (!arr) {
+    return;
+  }
+  var options = [];
+  var fg = document.createDocumentFragment();
+  for (var i = 0; i < arr.length; ++i) {
+    var tokens = arr[i].tokens;
+    for (var j = 0; j < tokens.length; j++) {
+      var v = tokens[j].value.toLowerCase();
+      if (options.indexOf(v) == -1) {
+        var opt = document.createElement('option');
+        opt.value = tokens[j].value;
+        fg.appendChild(opt);
+        options.push(v);
+      }
+    }
+  }
+  this.ele_hint_.innerHTML = '';
+  this.ele_hint_.appendChild(fg);
+  this.setStatus(options.length + ' suggestion found.');
+};
+
+
 
 Animals.prototype.handleInputChanged = function(e) {
   var key = e.keyCode || e.which;
   if (key == 13) {
     this.handleSearch(e);
+  } else if (this.ele_input_.value.length == 1) {
+    var rq = this.db.search('name', this.ele_input_.value + '*');
+    rq.progress(function(pe) {
+      // console.log(pe.length + ' results found');
+    }, this);
+    rq.done(function(pe) {
+      // console.log(pe);
+      this.hintResult(pe);
+    }, this);
   }
 };
 
@@ -59,16 +97,18 @@ Animals.prototype.renderResult = function(arr) {
     ul.appendChild(li);
   }
   this.ele_results_.appendChild(ul);
+  this.ele_hint_.innerHTML = '';
 };
 
+
+Animals.prototype.ele_input_ = document.getElementById('search_input');
 
 
 /**
  * @param {Event} e
  */
 Animals.prototype.handleSearch = function(e) {
-  var ele = document.getElementById('search_input');
-  var rq = this.db.search('name', ele.value);
+  var rq = this.db.search('name', this.ele_input_.value);
   rq.progress(function(pe) {
     // console.log(pe.length + ' results found');
   }, this);
