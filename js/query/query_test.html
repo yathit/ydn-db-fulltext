@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ResultSet test</title>
+    <script src="../../../closure-library/closure/goog/base.js"></script>
+    <script src="../../../ydn-base/js/deps.js"></script>
+    <script src="../../../ydn-db/js/deps.js"></script>
+    <script src="../../../natural/js/deps.js"></script>
+    <script src="../../../fullproof/js/deps.js"></script>
+    <script src="../deps.js"></script>
+    <script type="text/javascript" src="../../../fullproof/js/deps.js"></script>
+    <script type="text/javascript">
+        goog.require('ydn.db.text.ResultSet');
+        goog.require('ydn.db.schema.fulltext.Catalog');
+    </script>
+</head>
+<body>
+    <script type="text/javascript">
+        goog.require('goog.testing.jsunit');
+        ydn.db.text.IndexEntry.prototype.tfMode = ydn.db.text.IndexEntry.TfMode.FREQ;
+        var ft_schema = ydn.db.schema.fulltext.Catalog.fromJson({
+            name: 'test',
+            lang: 'en',
+            indexes: [
+                {
+                    storeName: 'article',
+                    keyPath: 'title',
+                    weight: 1.0
+                }, {
+                    storeName: 'article',
+                    keyPath: 'body',
+                    weight: 0.6
+                }]
+        });
+
+        var test_phonetic_query = function() {
+            var q1 = new ydn.db.text.QueryToken(ydn.db.text.QueryType.PHONETIC, 'tiger', 'TGR', 0, 1);
+            var rs = new ydn.db.text.ResultSet(ft_schema, [q1]);
+            rs.addResult(q1, [{
+                keyword: 'TGR',
+                value: 'tiger',
+                loc: [10],
+                id: ['article', 'key1', 'title', 'tiger']
+            }]);
+            var results = rs.collect();
+            assertEquals('number of result', 1, results.length);
+            assertEquals('score', ydn.db.text.QueryType.PHONETIC, results[0].score);
+        };
+        var test_exact_query = function() {
+            var q1 = new ydn.db.text.QueryToken(ydn.db.text.QueryType.EXACT, 'tiger', 'TGR', 0, 1);
+            var rs = new ydn.db.text.ResultSet(ft_schema, [q1]);
+            rs.addResult(q1, [{
+                keyword: 'TGR',
+                value: 'tiger',
+                loc: [10],
+                id: ['article', 'key1', 'title', 'tiger']
+            }]);
+            var results = rs.collect();
+            assertEquals('number of result', 1, results.length);
+            assertEquals('score', ydn.db.text.QueryType.EXACT, results[0].score);
+        };
+        var test_ranking = function() {
+            var q1 = new ydn.db.text.QueryToken(ydn.db.text.QueryType.PHONETIC, 'tiger', 'TGR', 0, 3/5);
+            var q2 = new ydn.db.text.QueryToken(ydn.db.text.QueryType.PHONETIC, 'lion', 'LON', 5, 2/5);
+            var rs = new ydn.db.text.ResultSet(ft_schema, [q1, q2]);
+            rs.addResult(q2, [{
+                keyword: 'LON',
+                value: 'lion',
+                loc: [10],
+                id: ['article', 'key2', 'title', 'lion']
+            }]);
+            rs.addResult(q1, [{
+                keyword: 'TGR',
+                value: 'tiger',
+                loc: [10],
+                id: ['article', 'key1', 'title', 'tiger']
+            }]);
+            var results = rs.collect();
+            console.log(results);
+            assertEquals('number of result', 2, results.length);
+            assertEquals('result 0', 'key1', results[0].primaryKey);
+            assertEquals('result 1', 'key2', results[1].primaryKey);
+            assertTrue('score 0', results[0].score > 0 && results[0].score < 1);
+            assertTrue('score 1', results[1].score > 0 && results[1].score < 1);
+            assertTrue('score 0 > score 1', results[0].score > results[1].score);
+        };
+    </script>
+</body>
+</html>

@@ -74,7 +74,10 @@ ydn.db.text.ResultEntry.prototype.invDocFreq = function() {
  */
 ydn.db.text.ResultEntry.prototype.getScore = function() {
   var similarity = natural.distance.Dice.compare(this.query.value, this.value);
-  return this.termFreq() * similarity;
+  var tf = this.termFreq();
+  var qs = this.query.getScore();
+  // console.log(this.value, tf, similarity, qs);
+  return tf * similarity * qs;
 };
 
 

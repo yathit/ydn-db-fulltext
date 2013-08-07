@@ -106,7 +106,7 @@ ydn.db.text.RankEntry.prototype.getScore = function() {
         entry.getKeyPath());
     goog.asserts.assertObject(index, 'Index for ' + entry.getStoreName() +
         ':' + entry.getKeyPath() + ' not found.');
-    var s1 = entry.termFreq();
+    var s1 = entry.getScore();
     var w = index.getWeight();
     // console.log(entry.toString(), s1, w);
     score += s1 * w;

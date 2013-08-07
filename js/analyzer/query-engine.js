@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @fileoverview Text analyzer.
+ * @fileoverview Indexing and query processor engine.
  *
  * @author kyawtun@yathit.com (Kyaw Tun)
  */

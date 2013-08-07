@@ -32,14 +32,14 @@ goog.require('ydn.db.text.ResultEntry');
  * @constructor
  * @param {!ydn.db.schema.fulltext.Catalog} ft_schema full text schema.
  * @param {!Array.<!ydn.db.text.QueryToken>} query_tokens query tokens.
- * @param {number} limit Maximum number of satisfactory results.
- * @param {number} threshold Threshold score of a result to consider as
+ * @param {number=} opt_limit Maximum number of satisfactory results.
+ * @param {number=} opt_threshold Threshold score of a result to consider as
  * satisfactory.
  * @implements {ydn.db.schema.fulltext.ResultSet}
  * @struct
  */
 ydn.db.text.ResultSet = function(ft_schema, query_tokens,
-                                 limit, threshold) {
+                                 opt_limit, opt_threshold) {
   /**
    * @protected
    * @type {!ydn.db.schema.fulltext.Catalog}
@@ -60,13 +60,13 @@ ydn.db.text.ResultSet = function(ft_schema, query_tokens,
    * @type {number}
    * @protected
    */
-  this.limit = limit;
+  this.limit = opt_limit || 1000;
   /**
    * Threshold score of a result to consider as satisfactory.
    * @type {number}
    * @protected
    */
-  this.threshold = threshold;
+  this.threshold = opt_threshold || NaN;
   /**
    * Lookup iteration lap lap.
    * @type {number}
