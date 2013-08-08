@@ -60,6 +60,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
             arr.length + ' objects for ' + store_name);
       }
       rq.await(function(keys, is_error, cb) {
+        rq.notify(keys);
         var idx_st_name = ft_schema.getName();
         if (!goog.isArray(keys)) {
           keys = [keys];
@@ -91,6 +92,61 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
         }
       });
     };
+    /**
+     * Clear index.
+     * @param {IDBKeyRange} kr key range.
+     */
+    var clearByKeyRange = function(kr) {
+      var store_name = store.getName();
+      if (ydn.db.crud.Storage.text.DEBUG) {
+        window.console.log(mth + ': removing index ' +
+            ydn.json.stringify(kr) + ' on ' + store_name);
+      }
+      rq.await(function(cnt, is_error, cb) {
+        if (is_error) {
+          cb(cnt, is_error);
+        } else {
+          rq.notify(cnt);
+          if (kr) {
+            kr = ydn.db.KeyRange.bound([store_name, kr.lower],
+                [store_name, kr.upper, '\uffff']).toIDBKeyRange();
+          }
+          var req = me.getCoreOperator().removeInternal(store_name, kr);
+          req.addBoth(function(x) {
+            if (ydn.db.crud.Storage.text.DEBUG) {
+              window.console.log('index removed', x);
+            }
+            cb(cnt, is_error);
+          });
+        }
+      });
+    };
+    /**
+     * Clear index.
+     * @param {IDBKey} id key to be deleted.
+     */
+    var clearById = function(id) {
+      var store_name = store.getName();
+      if (ydn.db.crud.Storage.text.DEBUG) {
+        window.console.log(mth + ': removing index for key ' +
+            id + ' on ' + store_name);
+      }
+      rq.await(function(cnt, is_error, cb) {
+        if (is_error) {
+          cb(cnt, is_error);
+        } else {
+          rq.notify(cnt);
+          var key = new ydn.db.Key(store_name, id);
+          var req = me.getCoreOperator().removeInternalByKeys([key]);
+          req.addBoth(function(x) {
+            if (ydn.db.crud.Storage.text.DEBUG) {
+              window.console.log('index removed', x);
+            }
+            cb(cnt, is_error);
+          });
+        }
+      });
+    };
     var mth = rq.getMethod();
     if (mth == ydn.db.Request.Method.PUT) {
       var doc = /** @type {!Object} */ (args[1]);
@@ -101,6 +157,12 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
       inject([args[1]]);
     } else if (mth == ydn.db.Request.Method.ADDS) {
       inject(/** @type {!Array} */ (args[1]));
+    } else if (mth == ydn.db.Request.Method.REMOVE ||
+        mth == ydn.db.Request.Method.CLEAR) {
+      var kr = /** @type {IDBKeyRange} */ (args[1]);
+      clearByKeyRange(kr);
+    } else if (mth == ydn.db.Request.Method.REMOVE_ID) {
+      clearById(/** @type {!IDBKey} */ (args[1]));
     }
   };
   store.addHook(indexer);
