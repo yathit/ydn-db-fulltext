@@ -6,7 +6,7 @@ var Animals = function() {
     fullTextCatalogs: [{
       name: 'name',
       lang: 'en',
-      indexes: [
+      sources: [
         {
           storeName: 'animal',
           keyPath: 'binomial',

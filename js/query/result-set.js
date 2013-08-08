@@ -82,13 +82,13 @@ ydn.db.text.ResultSet.prototype.nextLookup = function(cb) {
     var t = token.getType();
     if (t == ydn.db.text.QueryType.PREFIX ||
         t == ydn.db.text.QueryType.PHONETIC) {
-      index_name = 'value';
+      index_name = 'v';
       key = token.getValue().toLowerCase();
       key_range = ydn.db.KeyRange.starts(key);
       cb(store_name, index_name, key_range, token);
       this.result_count_++;
     } else { // EXACT and NOT
-      index_name = 'value';
+      index_name = 'v';
       // Note: value index are in lower case.
       key = token.getValue().toLowerCase();
       key_range = ydn.db.KeyRange.only(key);
@@ -96,7 +96,7 @@ ydn.db.text.ResultSet.prototype.nextLookup = function(cb) {
       this.result_count_++;
     }
     if (t == ydn.db.text.QueryType.PHONETIC) {
-      index_name = 'keyword';
+      index_name = 'k';
       key = token.getKeyword();
       key_range = ydn.db.KeyRange.only(key);
       cb(store_name, index_name, key_range, token);

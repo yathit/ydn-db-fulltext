@@ -7,11 +7,11 @@ var PubMedApp = function() {
   this.setting = cache ? JSON.parse(cache) : {};
   App.call(this);
   var db_schema = {
-    version: 22,
+    version: 23,
     fullTextCatalogs: [{
       name: 'pubmed-index',
       lang: 'en',
-      indexes: [
+      sources: [
         {
           storeName: 'pubmed',
           keyPath: 'title',

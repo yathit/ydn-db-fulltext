@@ -37,7 +37,7 @@
             fullTextCatalogs: [{
                 name: 'test',
                 lang: 'en',
-                indexes: [
+                sources: [
                     {
                         storeName: 'article',
                         keyPath: 'title',
@@ -92,7 +92,7 @@
                 console.log('test store', x);
             });
             */
-            db.keys('test', 'value', ydn.db.KeyRange.only('tiger')).addBoth(function(x) {
+            db.keys('test', 'v', ydn.db.KeyRange.only('tiger')).addBoth(function(x) {
                 keywords = x;
                 // console.log(x);
                 done = true;

@@ -91,7 +91,7 @@ ydn.db.text.ResultEntry.fromJson = function(query, json) {
   // console.log(json);
   var id = json['id'];
   id = goog.isString(id) ? ydn.db.utils.decodeKey(id) : id;
-  var keyword = json['keyword'];
+  var keyword = json['k'];
   var positions = json['loc'];
   goog.asserts.assertString(id[0], 'Invalid key ' +
       JSON.stringify(id) + ' at 0 for store name');

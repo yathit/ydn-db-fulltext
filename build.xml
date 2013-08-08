@@ -77,7 +77,7 @@
 
         <concat destfile="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}" append="true">
             <filelist dir="${work.dir}/fullproof/js/tokenizer"
-                      files="categ_letters_numbers.js,normalizer_lowercase.js,normalizer_lowercase_nomark.js"/>
+                      files="categ_letters_numbers.js"/>
         </concat>
         <concat destfile="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}"
                 append="true">
@@ -104,8 +104,8 @@
               tofile="${out.dir}/ydn.db-dev-text.js"/>
         <copy file="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}.map"
               tofile="${out.dir}/ydn.db-dev-text.js.map"/>
-        <copy todir="${out.dir}/../demo/ydn.db-text/">
-            <fileset dir="${ydn-db-fulltext.dir}/examples">
+        <copy todir="${out.dir}/../demo/ydn-db-text/pubmed-search/">
+            <fileset dir="${ydn-db-fulltext.dir}/examples/pubmed-search">
                 <exclude name="*.html"/>
             </fileset>
         </copy>

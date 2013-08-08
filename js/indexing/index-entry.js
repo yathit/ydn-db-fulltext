@@ -142,8 +142,8 @@ ydn.db.text.IndexEntry.prototype.toJson = function() {
   // value is changed to lower case, so that searching is more sensitive.
   // Also note that, actual value in id is case sensative.
   return {
-    'keyword': this.keyword,
-    'value': this.value.toLowerCase(),
+    'k': this.keyword,
+    'v': this.value.toLowerCase(),
     'id': this.getId(), // store name and primary key
     'loc': this.loc_ // .slice() // no need defensive
   };
