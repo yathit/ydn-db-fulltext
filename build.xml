@@ -19,7 +19,6 @@
                 output.fn="${buildno}-ydn.db-text.js"
                 closure.entry="ydn.db.sql.Storage">
             <ex.opt>
-                <arg line='-i "${work.dir}/ydn-base/js/config/main.js"'/>
                 <arg line='-i "${ydn-db.dir}/js/config/db.js"'/>
                 <arg line='-i "${ydn-db.dir}/js/config/algo.js"'/>
                 <arg line='-i "${ydn-db-fulltext.dir}/js/config/text.js"'/>
@@ -42,7 +41,6 @@
                          input.dir="${ydn-db.dir}/js"
                          output.fn="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}">
             <extrapaths>
-                <arg line='-i "${work.dir}/ydn-base/js/config/main.js"'/>
                 <arg line='-i "${ydn-db.dir}/js/config/db.js"'/>
                 <arg line='-i "${ydn-db.dir}/js/config/dev.js"'/>
                 <arg line='-i "${ydn-db.dir}/js/config/algo.js"'/>
