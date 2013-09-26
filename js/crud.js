@@ -43,7 +43,6 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
 
   ft_schema.engine = new ydn.db.text.QueryEngine(ft_schema);
 
-
   /**
    * @param {!ydn.db.Request} rq
    * @param {goog.array.ArrayLike} args
@@ -198,11 +197,12 @@ ydn.db.crud.Storage.prototype.search = function(name, query, opt_limit,
   if (ydn.db.crud.Storage.text.DEBUG) {
     window.console.log('query', name, query);
   }
-  var result = ft_schema.engine.query(name, query, opt_limit, opt_threshold);
-  if (!result) {
+  var query_tokens = ft_schema.engine.query(name, query, opt_limit,
+      opt_threshold);
+  if (!query_tokens) {
     this.logger.finer('query "' + query + '" contains only noise and' +
         ' search is ignored');
     return ydn.db.Request.succeed(ydn.db.Request.Method.SEARCH, null);
   }
-  return this.getCoreOperator().search(result);
+  return this.getCoreOperator().search(query_tokens);
 };
