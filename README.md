@@ -65,6 +65,24 @@ and * for prefix search.
     });
 
 
+Full text catalog
+-----------------
+Full text catalog is a logical grouping of one or more full-text indexes. It is
+defined in database initialization in database schema.
+
+    var catalog = {
+      name: 'author-name',
+      lang: 'en',
+      indexes: [{
+        storeName: 'author',
+        keyPath: 'first',
+        weight: 1.0
+      }, {
+        storeName: 'author',
+        keyPath: 'last',
+        weight: 0.8
+    }]
+
 Demo application
 ----------------
 
