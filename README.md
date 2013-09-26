@@ -3,6 +3,51 @@ ydn-db-fulltext
 
 Full text search module for YDN-DB
 
+Usage
+-------
+
+Use `search` method to query full text search.
+
+    db.search(catalog, query)
+
+Parameters:
+
+* `{string} catalog`
+   Full text search catalog name, as defined in schema.
+* `{string} query`
+   Free text query string.
+
+Documents are indexed during storing into the database using add or put methods.
+
+Query format is free text, in which implicit and/or/near logic operator apply
+for each token. Use double quote for exact match, - to subtract from the result
+and * for prefix search.
+
+    var schema = {
+      fullTextCatalogs: [{
+        name: 'name',
+        lang: 'en',
+          indexes: [
+            {
+              storeName: 'contact',
+              keyPath: 'first'
+            }],
+        ]},
+        stores: [
+          {
+            name: 'contact',
+            autoIncrement: true
+          }]
+    };
+    var db = new ydn.db.Storage('db name', schema);
+    db.put('contact', [{first: 'Jhon'}, {first: 'Collin'}]);
+    db.search('name', 'jon').done(function(x) {
+      console.log(x);
+      db.get(x[0].storeName, x[0].primaryKey).done(function(top) {
+        console.log(top);
+      })
+    });
+
 
 Demo application
 ----------------
