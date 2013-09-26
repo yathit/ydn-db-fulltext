@@ -20,9 +20,18 @@ Parameters:
 
 Returns:
 
-* `{!ydn.db.Request}` Returns a request object.
-*    `done: {Array}` Return list of inverted index. An inverted index has the following attributes: storeName, primaryKey, score, tokens, representing for store name of original document, primary key of original document, match quality score and array of token objects. Token object has the following attributes: keyPath, value and loc representing key path of index of the original document, original word from the original document and array list of position of word in the document.
-*    `fail: {Error}` If any one of deleting a key fail, fail callback is invoked, with the resulting error in respective elements.
+`{!ydn.db.Request}` Returns a request object.
+
+  `done: {Array}` Return list of inverted index. An inverted index has the
+  following attributes: `storeName`, `primaryKey`, `score`, `tokens`, representing for
+  store name of original document, primary key of original document, match
+  quality score and array of token objects. Token object has the following
+  attributes: `keyPath`, `value` and `loc` representing key path of index of the
+  original document, original word from the original document and array list of
+  position of word in the document.
+
+  `fail: {Error}` If any one of deleting a key fail, fail callback is invoked,
+  with the resulting error in respective elements.
 
 Documents are indexed during storing into the database using add or put methods.
 
