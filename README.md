@@ -4,6 +4,8 @@ ydn-db-fulltext
 Full text search module for [YDN-DB](https://github.com/yathit/ydn-db) database
 library.
 
+Being based on YDN-DB, storage mechanisms could be IndexedDB, WebSQL or localStorage.
+
 API Reference
 -------------
 
@@ -109,7 +111,11 @@ of record value with weighting more on `first`.
 Demo applications
 -----------------
 
-* http://dev.yathit.com/index/demos.html
+* [Animal database search](http://dev.yathit.com/demo/ydn-db-text/animals/animals.html)
+Basic indexing operation, featuring text suggestion input.
+* [Biomedical Medical Journal Abstract Search](http://dev.yathit.com/demo/ydn-db-text/pubmed-search/index.html)
+Ajax data load, free text search ranking and presenting result with matching words highlighted.
+* [All demos](http://dev.yathit.com/index/demos.html)
 
 
 Dependency
@@ -131,3 +137,18 @@ Collect all dependency using `git` or `svn`. Generate closure dependency using
 `ant deps`. Then you should able to run HTML test files in the source code folders.
 You should able to run example using raw js files.
 Use `ant build` for minification.
+
+Help and bug report
+-------------------
+
+Please file an issue for bug report describing how we could reproduce the problem.
+
+Ask technical question in [Stackoverflow #ydn-db](http://stackoverflow.com/questions/tagged/ydn-db)
+with ydb-db hash.
+
+Follow on Twitter [@yathit](https://twitter.com/yathit) for update and news.
+
+License
+-------
+
+Licensed under the Apache License, Version 2.0
