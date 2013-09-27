@@ -139,12 +139,23 @@ Animals.prototype.load = function(url) {
       }
     }
     // console.log(animals);
-    me.setStatus(animals.length + ' animals loaded, indexing...');
-    me.db.put('animal', animals).then(function(keys) {
-      this.setStatus(keys.length + ' animals saved.');
-    }, function(e) {
-      throw e;
-    }, me);
+    var msg = animals.length + ' animals loaded, indexing...';
+    me.setStatus(msg);
+    var load = function(i) {
+      var n = 9;
+      me.db.put('animal', animals.slice(i, i + n)).then(function(keys) {
+        i = i + n;
+        if (i < animals.length) {
+          this.setStatus(msg + ' ' + i);
+          load(i);
+        } else {
+          this.setStatus(msg + ' done.');
+        }
+      }, function(e) {
+        throw e;
+      }, me);
+    };
+    load(0);
   };
   xhr.send();
   this.setStatus('loading ' + url);
