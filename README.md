@@ -109,7 +109,7 @@ Demo applications
 Dependency
 ----------
 
-1. http://closure-library.googlecode.com/svn/trunk/
+1. Closure library: http://closure-library.googlecode.com/svn/trunk/
 2. YDN-BASE: https://github.com/yathit/ydn-base.git
 3. YDN-DB: https://github.com/yathit/ydn-db.git
 4. fullproof: https://github.com/yathit/fullproof.git
@@ -119,7 +119,9 @@ Dependency
 Build process
 -------------
 
+See detail build procedure in [YDN-DB](https://github.com/yathit/ydn-db).
+
 Collect all dependency using `git` or `svn`. Generate closure dependency using
-`ant deps`. Then you should able to run test files.
+`ant deps`. Then you should able to run HTML test files in the source code folders.
 You should able to run example using raw js files.
 Use `ant build` for minification.
