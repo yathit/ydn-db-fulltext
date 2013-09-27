@@ -100,6 +100,7 @@ This value is not stored in the database can be changed after indexing as well.
         weight: 0.8
     }]
 
+
 Demo applications
 -----------------
 
