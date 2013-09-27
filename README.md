@@ -1,16 +1,24 @@
 ydn-db-fulltext
 ===============
 
-Full text search module for YDN-DB
+Full text search module for [YDN-DB](https://github.com/yathit/ydn-db) database
+library.
 
-Usage
--------
+API Reference
+-------------
 
 Use `search` method to query full text search.
 
     db.search(catalog, query)
 
-Parameters:
+
+Documents are indexed during storing into the database using add or put methods.
+
+Query format is free text, in which implicit and/or/near logic operator apply
+for each token. Use double quote for exact match, - to subtract from the result
+and * for prefix search.
+
+*Parameters:*
 
 * `{string} catalog`
    Full text search catalog name, as defined in schema.
@@ -18,7 +26,7 @@ Parameters:
    Free text query string.
 
 
-Returns:
+*Returns:*
 
 `{!ydn.db.Request}` Returns a request object.
 
@@ -33,17 +41,16 @@ Returns:
   `fail: {Error}` If any one of deleting a key fail, fail callback is invoked,
   with the resulting error in respective elements.
 
-Documents are indexed during storing into the database using add or put methods.
+  `progress: {Array}` During index retrieval, raw inverted index are dispatched.
 
-Query format is free text, in which implicit and/or/near logic operator apply
-for each token. Use double quote for exact match, - to subtract from the result
-and * for prefix search.
+Example
+-------
 
     var schema = {
       fullTextCatalogs: [{
         name: 'name',
         lang: 'en',
-          indexes: [
+          sources: [
             {
               storeName: 'contact',
               keyPath: 'first'
@@ -70,10 +77,20 @@ Full text catalog
 Full text catalog is a logical grouping of one or more full-text indexes. It is
 defined in database initialization in database schema.
 
+*Fields:*
+
+* `{string} name` Full text catalog name.
+* `{string=} lang` Language.
+* `{Array} indexes` Full text indexes. Each index has source reference to
+original document by `storeName` and `keyPath`. The value of `keyPath` is
+the text to be indexed. `weight` factor is applied when ranking search result.
+This value is not stored in the database can be changed after indexing as well.
+
+
     var catalog = {
       name: 'author-name',
       lang: 'en',
-      indexes: [{
+      sources: [{
         storeName: 'author',
         keyPath: 'first',
         weight: 1.0
@@ -83,8 +100,8 @@ defined in database initialization in database schema.
         weight: 0.8
     }]
 
-Demo application
-----------------
+Demo applications
+-----------------
 
 * http://dev.yathit.com/index/demos.html
 
@@ -92,7 +109,17 @@ Demo application
 Dependency
 ----------
 
-1. YDN-DB: https://github.com/yathit/ydn-db.git
-2. fullproof: https://github.com/yathit/fullproof.git
-3. natural: https://github.com/yathit/natural.git
+1. http://closure-library.googlecode.com/svn/trunk/
+2. YDN-BASE: https://github.com/yathit/ydn-base.git
+3. YDN-DB: https://github.com/yathit/ydn-db.git
+4. fullproof: https://github.com/yathit/fullproof.git
+5. natural: https://github.com/yathit/natural.git
 
+
+Build process
+-------------
+
+Collect all dependency using `git` or `svn`. Generate closure dependency using
+`ant deps`. Then you should able to run test files.
+You should able to run example using raw js files.
+Use `ant build` for minification.
