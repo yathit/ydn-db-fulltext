@@ -80,12 +80,17 @@ defined in database initialization in database schema.
 *Fields:*
 
 * `{string} name` Full text catalog name.
-* `{string=} lang` Language.
+* `{string=} lang` Language. Stemming, word segmentation and phonetic normalization
+ are language dependent. `lang` must be defined to index properly. Currently
+ only `en` is well supported. For more languages, check out on [natural](https://github.com/yathit/natural.git)
+ project repo.
 * `{Array} indexes` Full text indexes. Each index has source reference to
 original document by `storeName` and `keyPath`. The value of `keyPath` is
 the text to be indexed. `weight` factor is applied when ranking search result.
 This value is not stored in the database can be changed after indexing as well.
 
+The following full text catalog index author name on `first` and `last` field
+of record value with weighting more on `first`.
 
     var catalog = {
       name: 'author-name',
