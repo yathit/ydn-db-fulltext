@@ -4,7 +4,17 @@ ydn-db-fulltext
 Full text search module for [YDN-DB](https://github.com/yathit/ydn-db) database
 library.
 
-Being based on YDN-DB, storage mechanisms could be IndexedDB, WebSQL or localStorage.
+
+Features
+--------
+
+* Unicode-base tokenization supporting full language spectrum.
+* Stemming and phonetic normalization for English language.
+* Free text query base ranking with logical and, or and near.
+* Support exact match and prefix match.
+* Being based on YDN-DB, storage mechanisms could be IndexedDB, WebSQL or localStorage.
+* Easy and flexible configuration using fulltext catalog.
+
 
 API Reference
 -------------
