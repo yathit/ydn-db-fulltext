@@ -96,7 +96,7 @@ defined in database initialization in database schema.
  are language dependent. `lang` must be defined to index properly. Currently
  only `en` is well supported. For more languages, check out on [natural](https://github.com/yathit/natural.git)
  project repo.
-* `{Array} indexes` Full text indexes. Each index has source reference to
+* `{Array} sources` Full text indexes. Each index has source reference to
 original document by `storeName` and `keyPath`. The value of `keyPath` is
 the text to be indexed. `weight` factor is applied when ranking search result.
 This value is not stored in the database can be changed after indexing as well.
