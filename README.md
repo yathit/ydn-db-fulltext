@@ -10,10 +10,14 @@ Features
 
 * Unicode-base tokenization supporting full language spectrum.
 * Stemming and phonetic normalization for English language.
-* Free text query base ranking with logical and, or and near.
+* Free text query base ranking with
+    * index weight
+    * implicit logical (and, or)
+    * positional
 * Support exact match and prefix match.
-* Being based on YDN-DB, storage mechanisms could be IndexedDB, WebSQL or localStorage.
-* Easy and flexible configuration using fulltext catalog.
+* Being based on YDN-DB, IndexedDB, WebSQL or localStorage storage mechanisms
+are supported.
+* Flexible index configuration using fulltext catalog.
 
 
 API Reference
