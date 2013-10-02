@@ -13,14 +13,15 @@
     <target name="compile" description="generates compiled files for client js">
         <mkdir dir="${ydn-db.dir}/jsc"/>
         <adv-comp
-                input.dir="${ydn-db.dir}/js"
-                input.fn="${ydn-db.dir}/js/ydn/db/sql/storage.js"
+
+                input.dir="${ydn-db.dir}/src"
+                input.fn="${ydn-db.dir}/src/ydn/db/core/storage.js"
                 output.dir="${ydn-db.dir}/jsc"
                 output.fn="${buildno}-ydn.db-text.js"
-                closure.entry="ydn.db.sql.Storage">
+                closure.entry="ydn.db.core.Storage">
             <ex.opt>
-                <arg line='-i "${ydn-db.dir}/js/config/db.js"'/>
-                <arg line='-i "${ydn-db.dir}/js/config/algo.js"'/>
+                <arg line='-i "${ydn-db.dir}/src/config/dev.js"'/>
+                <arg line='-i "${ydn-db.dir}/src/config/core.js"'/>
                 <arg line='-i "${ydn-db-fulltext.dir}/js/config/text.js"'/>
                 <arg line='-p "${ydn-db-fulltext.dir}/js"'/>
                 <arg line='-f "--externs=${work.dir}/ydn-base/externs/s3.js"'/>
@@ -37,15 +38,14 @@
         <mkdir dir="${ydn-db-fulltext.dir}/jsc"/>
 
         <closure-compile compilationlevel="ADVANCED_OPTIMIZATIONS"
-                         input="${ydn-db.dir}/js/ydn/db/sql/storage.js"
-                         input.dir="${ydn-db.dir}/js"
+                         input="${ydn-db.dir}/src/ydn/db/core/storage.js"
+                         input.dir="${ydn-db.dir}/src"
                          output.fn="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}">
             <extrapaths>
-                <arg line='-i "${ydn-db.dir}/js/config/db.js"'/>
-                <arg line='-i "${ydn-db.dir}/js/config/dev.js"'/>
-                <arg line='-i "${ydn-db.dir}/js/config/algo.js"'/>
+                <arg line='-i "${ydn-db.dir}/src/config/dev.js"'/>
+                <arg line='-i "${ydn-db.dir}/src/config/core.js"'/>
                 <arg line='-i "${ydn-db-fulltext.dir}/js/config/text.js"'/>
-                <arg line='-f "--closure_entry_point=ydn.db.sql.Storage"'/>
+                <arg line='-f "--closure_entry_point=ydn.db.core.Storage"'/>
             </extrapaths>
             <options>
                 <arg line='-f "--generate_exports"'/>
@@ -59,7 +59,7 @@
                 <arg line='-f "--externs=${ydn-base.dir}/externs/opensocial.js"'/>
                 <arg line='-f "--externs=${ydn-base.dir}/externs/gapi.js"'/>
                 <arg line='-f "--externs=${work.dir}/fullproof/externs/unicode.js"'/>
-                <arg line='-p "${ydn-base.dir}/js"'/>
+                <arg line='-p "${ydn-base.dir}/src"'/>
                 <arg line='-p "${ydn-db-fulltext.dir}/js"'/>
                 <arg line='-p "${work.dir}/natural/js"'/>
                 <arg line='-p "${work.dir}/fullproof/js"'/>
