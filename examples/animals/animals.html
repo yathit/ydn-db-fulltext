@@ -19,13 +19,18 @@
     <script type="text/javascript" src="../../js/deps.js"></script>
     <script type="text/javascript">
         goog.require('ydn.debug');
-        goog.require('ydn.db.Storage');
+        goog.require('ydn.db.crud.Storage');
         goog.require('ydn.db.crud.Storage.text');
         goog.require('ydn.base');
     </script>
-    <script src="../../../ydn-db/src/config/conn.js"></script>
+    <script src="../../../ydn-db/src/config/crud.js"></script>
     <script type="text/javascript">
         // ydn.debug.log('ydn.db', 'finest');
+        options = {
+            mechanisms:['websql']
+        };
+         // ydn.db.crud.req.WebSql.DEBUG = true;
+         // ydn.db.crud.Storage.text.DEBUG = true;
     </script>
 
 

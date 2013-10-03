@@ -5,52 +5,31 @@
     <property name="ydn-db.dir" location="${work.dir}/ydn-db" />
     <import file="${ydn-base.dir}/build.xml"/>
     <import file="${ydn-db.dir}/build.xml"/>
-
+    <property name="text-out.fn"
+              value="${buildno}-ydn.db-text.js"/>
     <property name="text-dev-out.fn"
               value="${buildno}-ydn.db-dev-text.js"/>
     <property name="out.dir" location="${work.dir}/ydn-dev/public/jsc"/>
 
-    <target name="compile" description="generates compiled files for client js">
-        <mkdir dir="${ydn-db.dir}/jsc"/>
-        <adv-comp
 
-                input.dir="${ydn-db.dir}/src"
-                input.fn="${ydn-db.dir}/src/ydn/db/core/storage.js"
-                output.dir="${ydn-db.dir}/jsc"
-                output.fn="${buildno}-ydn.db-text.js"
-                closure.entry="ydn.db.core.Storage">
-            <ex.opt>
-                <arg line='-i "${ydn-db.dir}/src/config/dev.js"'/>
-                <arg line='-i "${ydn-db.dir}/src/config/core.js"'/>
-                <arg line='-i "${ydn-db-fulltext.dir}/js/config/text.js"'/>
-                <arg line='-p "${ydn-db-fulltext.dir}/js"'/>
-                <arg line='-f "--externs=${work.dir}/ydn-base/externs/s3.js"'/>
-                <arg line='-f "--externs=${work.dir}/fullproof/externs/unicode.js"'/>
-                <arg line='-f "--define=ydn.db.base.USE_HOOK=true"'/>
-                <arg line='-f "--define=ydn.db.version=${quoted-version}"'/>
-                <arg line='-p "${work.dir}/natural/js"'/>
-                <arg line='-p "${work.dir}/fullproof/js"'/>
-            </ex.opt>
-        </adv-comp>
-    </target>
 
-    <target name="compile-dev" description="compile JS">
-        <mkdir dir="${ydn-db-fulltext.dir}/jsc"/>
-
+    <macrodef name="comp-text" description="compile JS">
+        <attribute name="output.fn"/>
+        <element name="ex.opt" optional="yes"/>
+        <sequential>
         <closure-compile compilationlevel="ADVANCED_OPTIMIZATIONS"
                          input="${ydn-db.dir}/src/ydn/db/core/storage.js"
                          input.dir="${ydn-db.dir}/src"
-                         output.fn="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}">
+                         output.fn="@{output.fn}">
             <extrapaths>
                 <arg line='-i "${ydn-db.dir}/src/config/dev.js"'/>
                 <arg line='-i "${ydn-db.dir}/src/config/core.js"'/>
                 <arg line='-i "${ydn-db-fulltext.dir}/js/config/text.js"'/>
                 <arg line='-f "--closure_entry_point=ydn.db.core.Storage"'/>
-            </extrapaths>
-            <options>
+
                 <arg line='-f "--generate_exports"'/>
                 <arg line='-f "--source_map_format=V3"'/>
-                <arg line='-f "--create_source_map=${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}.map"'/>
+                <arg line='-f "--create_source_map=@{output.fn}.map"'/>
                 <arg line='-f "--externs=${ydn-base.dir}/externs/misc.js"'/>
                 <arg line='-f "--externs=${ydn-db.dir}/externs/misc.js"'/>
                 <arg line='-f "--externs=${ydn-db.dir}/externs/websql.js"'/>
@@ -66,32 +45,46 @@
                 <arg line='-f "--externs=${work.dir}/ydn-base/externs/s3.js"'/>
                 <arg line='-f "--define=ydn.db.version=${quoted-version}"'/>
                 <arg line='-f "--output_wrapper=(function(){%output%"'/>
+            </extrapaths>
+            <options>
+                <ex.opt/>
             </options>
         </closure-compile>
+            <concat destfile="@{output.fn}" append="true">
+                <filelist dir="${work.dir}/fullproof/js/tokenizer"
+                          files="categ_letters_numbers.js"/>
+            </concat>
+            <concat destfile="@{output.fn}"
+                    append="true">
+                })();
+                //# sourceMappingURL=@{output.fn}.map
+            </concat>
 
-        <concat destfile="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}" append="true">
-            <filelist dir="${work.dir}/fullproof/js/tokenizer"
-                      files="categ_letters_numbers.js"/>
-        </concat>
-        <concat destfile="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}"
-                append="true">
-            })();
-            //# sourceMappingURL=ydn.db-dev-text.js.map
-        </concat>
+            <replace description="replace so with online repo path"
+                     file="@{output.fn}.map"
+                     token="/Users/kyawtun/work/ydn-base/"
+                     value="https://bitbucket.org/ytkyaw/ydn-base/raw/master/"/>
+            <replace description="replace so with online repo path"
+                     file="@{output.fn}.map"
+                     token="/Users/kyawtun/work/ydn-db/"
+                     value="https://bitbucket.org/ytkyaw/ydn-db/raw/${buildno}/"/>
+            <replace description="replace so with online repo path"
+                     file="@{output.fn}.map"
+                     token="/Users/kyawtun/work/closure-library/"
+                     value="https://raw.github.com/yathit/google-closure-library/master/"/>
+        </sequential>
+    </macrodef>
+    <target name="compile-dev" description="compile JS">
+        <mkdir dir="${ydn-db-fulltext.dir}/jsc"/>
+        <comp-text output.fn="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}" />
+    </target>
+    <target name="compile" description="generates compiled files for client js">
 
-        <replace description="replace so with online repo path"
-                 file="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}.map"
-                 token="/Users/kyawtun/work/ydn-base/"
-                 value="https://bitbucket.org/ytkyaw/ydn-base/raw/master/"/>
-        <replace description="replace so with online repo path"
-                 file="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}.map"
-                 token="/Users/kyawtun/work/ydn-db/"
-                 value="https://bitbucket.org/ytkyaw/ydn-db/raw/${buildno}/"/>
-        <replace description="replace so with online repo path"
-                 file="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}.map"
-                 token="/Users/kyawtun/work/closure-library/"
-                 value="https://raw.github.com/yathit/google-closure-library/master/"/>
-
+        <comp-text output.fn="${ydn-db-fulltext.dir}/jsc/${text-out.fn}">
+            <ex.opt>
+                <arg line='-f "--define=goog.DEBUG=false"'/>
+            </ex.opt>
+        </comp-text>
     </target>
     <target name="to-doc" description="copy file to documentation site">
         <copy file="${ydn-db-fulltext.dir}/jsc/${buildno}-ydn.db-dev-text.js"
@@ -103,7 +96,7 @@
                 <exclude name="*.html"/>
             </fileset>
         </copy>
-        <copy todir="${out.dir}/../demo/ydn.db-text/animals/">
+        <copy todir="${out.dir}/../demo/ydn-db-text/animals/">
             <fileset dir="${ydn-db-fulltext.dir}/examples/animals">
                 <exclude name="*.html"/>
             </fileset>
@@ -116,7 +109,7 @@
             <arg value="cp"/>
             <arg value="-z js"/>
             <fileset dir="${ydn-db-fulltext.dir}/jsc" includes="${buildno}-*.js"/>
-            <fileset dir="${ydn-db-fulltext.dir}/jsc" includes="${buildno}-*.map"/>
+
             <srcfile prefix="${ydn-db-fulltext.dir}/jsc/"/>
             <targetfile prefix="gs://download.yathit.com/ydn-db/build/"/>
             <mapper>
@@ -139,7 +132,7 @@
 
 
     <target name="build" description="build all distribution"
-            depends="compile,compile-dev">
+            depends="compile">
 
     </target>
 </project>

@@ -20,11 +20,11 @@ var Animals = function() {
     stores: [
       {
         name: 'animal',
-        keyPath: 'binomial',
-        autoIncrement: true
+        keyPath: 'binomial'
       }]
   };
-  this.db = new ydn.db.Storage('animals-2', db_schema);
+  options = options || {};
+  this.db = new ydn.db.Storage('animals-3', db_schema, options);
   var btn_search = document.getElementById('search');
   btn_search.addEventListener('click', this.handleSearch.bind(this));
   var input = document.getElementById('search_input');

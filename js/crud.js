@@ -60,13 +60,17 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
       }
       rq.await(function(keys, is_error, cb) {
         rq.notify(keys);
+        if (is_error) {
+          cb(keys, is_error);
+          return;
+        }
         var idx_st_name = ft_schema.getName();
         if (!goog.isArray(keys)) {
           keys = [keys];
         }
         for (var i = 0; i < keys.length; i++) {
           var p_key = /** @type {IDBKey} */ (keys[i]);
-          if (!goog.isDefAndNotNull(p_key)) {
+          if (!ydn.db.Key.isValidKey(p_key)) {
             continue;
           }
           var doc = /** @type {!Object} */ (arr[i]);
