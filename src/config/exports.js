@@ -2,6 +2,7 @@
  * @fileoverview ydn-db-text build configuration file.
  */
 
+goog.provide('ydn.db.text.exports');
 goog.require('ydn.db.crud.Storage.text');
 
 goog.exportProperty(ydn.db.crud.Storage.prototype, 'search',

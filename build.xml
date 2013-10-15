@@ -11,7 +11,49 @@
               value="${buildno}-ydn.db-dev-text.js"/>
     <property name="out.dir" location="${work.dir}/ydn-dev/public/jsc"/>
 
+    <macrodef name="adv-comp">
+        <attribute name="input.fn"/>
+        <attribute name="input.dir" default="${ydn-db.dir}/src"/>
+        <attribute name="output.fn"/>
+        <attribute name="output.dir" default="${ydn-db.dir}/jsc"/>
+        <element name="exjs.dir" optional="yes"/>
+        <sequential>
+            <closure-compile compilationlevel="ADVANCED_OPTIMIZATIONS"
+                             base.dir="@{input.dir}"
+                             input="@{input.fn}"
+                             input.dir="@{input.dir}"
+                             output.fn="@{output.dir}/@{output.fn}">
+                <options>
+                    <arg line='-p "${ydn-base.dir}/src"'/>
+                    <arg line='-p "${work.dir}/ydn-db-fulltext/src"'/>
+                    <arg line='-p "${work.dir}/fullproof/js"'/>
+                    <arg line='-p "${work.dir}/natural/js"'/>
+                    <exjs.dir/>
+                    <arg line='-f "--externs=${ydn-db.dir}/externs/misc.js"'/>
+                    <arg line='-f "--externs=${ydn-db.dir}/externs/schema.js"'/>
+                    <arg line='-f "--externs=${ydn-db.dir}/externs/websql.js"'/>
+                    <arg line='-f "--externs=${ydn-base.dir}/externs/misc.js"'/>
+                    <arg line='-f "--externs=${ydn-base.dir}/externs/atom.js"'/>
+                    <arg line='-f "--externs=${ydn-base.dir}/externs/gapi.js"'/>
+                    <arg line='-f "--closure_entry_point=ydn.db.Storage.main_entry"'/>
+                    <arg line='-f "--define=ydn.db.version=${quoted-version}"'/>
+                    <arg line='-f "--define=goog.DEBUG=true"'/>
+                    <arg line='-f "--source_map_format=V3"'/>
+                    <arg line='-f "--create_source_map=@{output.dir}/@{output.fn}.map"'/>
+                    <arg line='-f "--output_wrapper=(function(){%output%"'/>
+                </options>
+            </closure-compile>
+            <concat destfile="@{output.dir}/@{output.fn}" append="true">
+                <filelist dir="${work.dir}/fullproof/js/tokenizer"
+                          files="categ_letters_numbers.js"/>
+            </concat>
+            <concat destfile="@{output.dir}/@{output.fn}" append="true">
+                })();
+                //# sourceMappingURL=@{output.fn}.map
+            </concat>
+        </sequential>
 
+    </macrodef>
 
     <macrodef name="comp-text" description="compile JS">
         <attribute name="output.fn"/>
