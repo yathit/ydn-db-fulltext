@@ -23,7 +23,7 @@ var Animals = function() {
         keyPath: 'binomial'
       }]
   };
-  this.db = new ydn.db.Storage('animals-3', db_schema);
+  this.db = new ydn.db.crud.Storage('animals-3', db_schema);
   var btn_search = document.getElementById('search');
   btn_search.addEventListener('click', this.handleSearch.bind(this));
   var input = document.getElementById('search_input');
@@ -165,7 +165,10 @@ Animals.prototype.load = function(url) {
  * Run the app.
  */
 Animals.prototype.run = function() {
-  this.db.addEventListener('ready', function(e) {
+  this.db.onReady(function(e) {
+    if (e) {
+      throw e;
+    }
     this.db.count('animal').then(function(cnt) {
       // console.log(cnt);
       if (cnt < 2345) {
@@ -176,7 +179,7 @@ Animals.prototype.run = function() {
     }, function(e) {
       throw e;
     }, this);
-  }, false, this);
+  }, this);
 };
 
 Animals.prototype.ele_status_ = document.getElementById('status');

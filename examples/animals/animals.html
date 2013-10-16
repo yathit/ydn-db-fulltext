@@ -16,18 +16,20 @@
             src="../../../fullproof/js/tokenizer/normalizer_lowercase.js"></script>
     <script type="text/javascript"
             src="../../../fullproof/js/tokenizer/normalizer_lowercase_nomark.js"></script>
-    <script type="text/javascript" src="../../js/deps.js"></script>
+    <script type="text/javascript" src="../../src/deps.js"></script>
     <script type="text/javascript">
         goog.require('ydn.debug');
         goog.require('ydn.db.crud.Storage');
         goog.require('ydn.db.crud.Storage.text');
-        goog.require('ydn.base');
     </script>
-    <script src="../../../ydn-db/src/config/crud.js"></script>
+    <script src="../../../ydn-db/config/crud.js"></script>
+    <script type="text/javascript" src="../../../ydn-db/src/ydn/db/tr/inject.js"></script>
+    <script type="text/javascript" src="../../../ydn-db/src/ydn/db/crud/inject.js"></script>
+
     <script type="text/javascript">
         // ydn.debug.log('ydn.db', 'finest');
         options = {
-            mechanisms:['websql']
+            mechanisms:['indexeddb']
         };
          // ydn.db.crud.req.WebSql.DEBUG = true;
          // ydn.db.crud.Storage.text.DEBUG = true;

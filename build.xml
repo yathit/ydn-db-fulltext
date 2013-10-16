@@ -5,17 +5,16 @@
     <property name="ydn-db.dir" location="${work.dir}/ydn-db" />
     <import file="${ydn-base.dir}/build.xml"/>
     <import file="${ydn-db.dir}/build.xml"/>
-    <property name="text-out.fn"
-              value="${buildno}-ydn.db-text.js"/>
-    <property name="text-dev-out.fn"
-              value="${buildno}-ydn.db-dev-text.js"/>
-    <property name="out.dir" location="${work.dir}/ydn-dev/public/jsc"/>
 
-    <macrodef name="adv-comp">
-        <attribute name="input.fn"/>
+    <property name="text-dev-out.fn"
+              value="ydn.db-crud-core-text-e-dev.js"/>
+    <property name="out.dir" location="${work.dir}/ydn-dev/public/jsc/ydn-db"/>
+
+    <macrodef name="comp-text">
         <attribute name="input.dir" default="${ydn-db.dir}/src"/>
+        <attribute name="input.fn" default="${ydn-db.dir}/config/core.js"/>
         <attribute name="output.fn"/>
-        <attribute name="output.dir" default="${ydn-db.dir}/jsc"/>
+        <attribute name="output.dir" default="${ydn-db-fulltext.dir}/jsc"/>
         <element name="exjs.dir" optional="yes"/>
         <sequential>
             <closure-compile compilationlevel="ADVANCED_OPTIMIZATIONS"
@@ -25,6 +24,7 @@
                              output.fn="@{output.dir}/@{output.fn}">
                 <options>
                     <arg line='-p "${ydn-base.dir}/src"'/>
+                    <arg line='-i "${work.dir}/ydn-db-fulltext/src/exports.js"'/>
                     <arg line='-p "${work.dir}/ydn-db-fulltext/src"'/>
                     <arg line='-p "${work.dir}/fullproof/js"'/>
                     <arg line='-p "${work.dir}/natural/js"'/>
@@ -35,7 +35,9 @@
                     <arg line='-f "--externs=${ydn-base.dir}/externs/misc.js"'/>
                     <arg line='-f "--externs=${ydn-base.dir}/externs/atom.js"'/>
                     <arg line='-f "--externs=${ydn-base.dir}/externs/gapi.js"'/>
+                    <arg line='-f "--externs=${work.dir}/fullproof/externs/unicode.js"'/>
                     <arg line='-f "--closure_entry_point=ydn.db.Storage.main_entry"'/>
+                    <arg line='-f "--closure_entry_point=ydn.db.text.exports"'/>
                     <arg line='-f "--define=ydn.db.version=${quoted-version}"'/>
                     <arg line='-f "--define=goog.DEBUG=true"'/>
                     <arg line='-f "--source_map_format=V3"'/>
@@ -55,7 +57,7 @@
 
     </macrodef>
 
-    <macrodef name="comp-text" description="compile JS">
+    <macrodef name="comp-text-old" description="compile JS">
         <attribute name="output.fn"/>
         <element name="ex.opt" optional="yes"/>
         <sequential>
@@ -68,8 +70,6 @@
                 <arg line='-i "${ydn-db.dir}/src/config/core.js"'/>
                 <arg line='-i "${ydn-db-fulltext.dir}/js/config/text.js"'/>
                 <arg line='-f "--closure_entry_point=ydn.db.core.Storage"'/>
-
-                <arg line='-f "--generate_exports"'/>
                 <arg line='-f "--source_map_format=V3"'/>
                 <arg line='-f "--create_source_map=@{output.fn}.map"'/>
                 <arg line='-f "--externs=${ydn-base.dir}/externs/misc.js"'/>
@@ -80,6 +80,7 @@
                 <arg line='-f "--externs=${ydn-base.dir}/externs/opensocial.js"'/>
                 <arg line='-f "--externs=${ydn-base.dir}/externs/gapi.js"'/>
                 <arg line='-f "--externs=${work.dir}/fullproof/externs/unicode.js"'/>
+
                 <arg line='-p "${ydn-base.dir}/src"'/>
                 <arg line='-p "${ydn-db-fulltext.dir}/js"'/>
                 <arg line='-p "${work.dir}/natural/js"'/>
@@ -118,21 +119,18 @@
     </macrodef>
     <target name="compile-dev" description="compile JS">
         <mkdir dir="${ydn-db-fulltext.dir}/jsc"/>
-        <comp-text output.fn="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}" />
-    </target>
-    <target name="compile" description="generates compiled files for client js">
+        <comp-text output.fn="${text-dev-out.fn}">
+            <exjs.dir>
 
-        <comp-text output.fn="${ydn-db-fulltext.dir}/jsc/${text-out.fn}">
-            <ex.opt>
-                <arg line='-f "--define=goog.DEBUG=false"'/>
-            </ex.opt>
+            </exjs.dir>
         </comp-text>
     </target>
+
     <target name="to-doc" description="copy file to documentation site">
-        <copy file="${ydn-db-fulltext.dir}/jsc/${buildno}-ydn.db-dev-text.js"
-              tofile="${out.dir}/ydn.db-dev-text.js"/>
+        <copy file="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}"
+              tofile="${out.dir}/${text-dev-out.fn}"/>
         <copy file="${ydn-db-fulltext.dir}/jsc/${text-dev-out.fn}.map"
-              tofile="${out.dir}/ydn.db-dev-text.js.map"/>
+              tofile="${out.dir}/${text-dev-out.fn}.map"/>
         <copy todir="${out.dir}/../demo/ydn-db-text/pubmed-search/">
             <fileset dir="${ydn-db-fulltext.dir}/examples/pubmed-search">
                 <exclude name="*.html"/>
@@ -165,16 +163,16 @@
     </target>
 
     <target name="deps" description="list dependency files">
-        <delete file="${ydn-db-fulltext.dir}/js/deps.js"/>
+        <delete file="${ydn-db-fulltext.dir}/src/deps.js"/>
         <calc-deps
-                input.dir="${ydn-db-fulltext.dir}/js"
-                output.fn="${ydn-db-fulltext.dir}/js/deps.js">
+                input.dir="${ydn-db-fulltext.dir}/src"
+                output.fn="${ydn-db-fulltext.dir}/src/deps.js">
         </calc-deps>
     </target>
 
 
     <target name="build" description="build all distribution"
-            depends="compile">
+            depends="deps,compile-dev">
 
     </target>
 </project>
