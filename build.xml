@@ -11,8 +11,8 @@
     <property name="out.dir" location="${work.dir}/ydn-dev/public/jsc/ydn-db"/>
 
     <macrodef name="comp-text">
-        <attribute name="input.dir" default="${ydn-db.dir}/src"/>
-        <attribute name="input.fn" default="${ydn-db.dir}/config/core.js"/>
+        <attribute name="input.dir" default="${work.dir}/ydn-db-fulltext/src"/>
+        <attribute name="input.fn" default="${work.dir}/ydn-db-fulltext/src/exports.js"/>
         <attribute name="output.fn"/>
         <attribute name="output.dir" default="${ydn-db-fulltext.dir}/jsc"/>
         <element name="exjs.dir" optional="yes"/>
@@ -24,8 +24,6 @@
                              output.fn="@{output.dir}/@{output.fn}">
                 <options>
                     <arg line='-p "${ydn-base.dir}/src"'/>
-                    <arg line='-i "${work.dir}/ydn-db-fulltext/src/exports.js"'/>
-                    <arg line='-p "${work.dir}/ydn-db-fulltext/src"'/>
                     <arg line='-p "${work.dir}/fullproof/js"'/>
                     <arg line='-p "${work.dir}/natural/js"'/>
                     <exjs.dir/>
@@ -36,8 +34,7 @@
                     <arg line='-f "--externs=${ydn-base.dir}/externs/atom.js"'/>
                     <arg line='-f "--externs=${ydn-base.dir}/externs/gapi.js"'/>
                     <arg line='-f "--externs=${work.dir}/fullproof/externs/unicode.js"'/>
-                    <arg line='-f "--closure_entry_point=ydn.db.Storage.main_entry"'/>
-                    <arg line='-f "--closure_entry_point=ydn.db.text.exports"'/>
+                    <arg line='-f "--closure_entry_point=ydn.db.Storage"'/>
                     <arg line='-f "--define=ydn.db.version=${quoted-version}"'/>
                     <arg line='-f "--define=goog.DEBUG=true"'/>
                     <arg line='-f "--source_map_format=V3"'/>
@@ -121,7 +118,8 @@
         <mkdir dir="${ydn-db-fulltext.dir}/jsc"/>
         <comp-text output.fn="${text-dev-out.fn}">
             <exjs.dir>
-
+                <arg line='-i "${ydn-db.dir}/config/main.js"'/>
+                <arg line='-p "${work.dir}/ydn-db/src"'/>
             </exjs.dir>
         </comp-text>
     </target>
