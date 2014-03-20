@@ -2,7 +2,9 @@ ydn-db-fulltext
 ===============
 
 Full text search module for [YDN-DB](https://github.com/yathit/ydn-db) database
-library.
+library. This library build on top of two full text search libraries, [natural]
+(https://github.com/NaturalNode/natural) for stemming, normalization, analyzer
+and (fullproof)[https://github.com/reyesr/fullproof] for tokenization.
 
 
 Features
