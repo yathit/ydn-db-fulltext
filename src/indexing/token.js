@@ -100,8 +100,8 @@ ydn.db.text.Token.cmp = function(a, b) {
  * @final
  * @type {boolean}
  */
-ydn.db.text.Token.isArrayKeyPathSupported = !goog.userAgent.MOBILE &&
-    (goog.userAgent.product.CHROME || goog.userAgent.product.FIREFOX);
+ydn.db.text.Token.isArrayKeyPathSupported = goog.userAgent.product.CHROME ||
+    goog.userAgent.product.FIREFOX;
 
 
 /**
