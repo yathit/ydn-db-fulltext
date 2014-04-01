@@ -75,7 +75,6 @@
                         var store_names = schema.stores.map(function(x) {return x.name});
                         assertArrayEquals('two object store', ['article', 'test'], store_names);
                         assertObjectEquals('article tiger inserted as it is', data, read_data);
-                        assertNotEquals('index tiger exist', 0, keywords.length);
                         reachedFinalContinuation = true;
                         ydn.db.deleteDatabase(db.getName(), db.getType());
                         db.close();
@@ -89,15 +88,6 @@
             db.put('article', data);
             db.get('article', 'tiger').addBoth(function(x) {
                 read_data = x;
-            });
-            /*
-            db.values('test').addBoth(function(x) {
-                console.log('test store', x);
-            });
-            */
-            db.keys('test', 'v', ydn.db.KeyRange.only('tiger')).addBoth(function(x) {
-                keywords = x;
-                // console.log(x);
                 done = true;
             });
         };
@@ -167,7 +157,7 @@
             db.clear();
             var k1;
             db.put('article', data).addBoth(function(x) {
-                console.log(x);
+                // console.log(x);
                 k1 = x[0];
                 db.search('test', 'Tiger').addBoth(function(x) {
                     // console.log('Tiger', x)
@@ -177,6 +167,53 @@
                     n_rem = n;
                     db.search('test', 'Tiger').addBoth(function(x) {
                         result2 = x;
+                        // console.log('forest', x);
+                        done = true;
+                    });
+                });
+
+            });
+        };
+
+
+        var test_index_update = function() {
+            var data = {
+                title: 'Tiger',
+                body: 'Tiger live in forest.'
+            };
+            var db = new ydn.db.Storage('test_index_update-1', db_schema);
+            var done;
+            var read_data, schema, n_rem, result1, result2, result3;
+            waitForCondition(
+                    // Condition
+                    function () {
+                        return done;
+                    },
+                    // Continuation
+                    function () {
+                        assertEquals('forest has a result 1', 1, result1.length);
+                        assertEquals('number of result 2', 0, result2.length);
+                        assertEquals('number of result 3', 1, result3.length);
+                        reachedFinalContinuation = true;
+                        ydn.db.deleteDatabase(db.getName(), db.getType());
+                        db.close();
+                    },
+                    100, // interval
+                    1000); // maxTimeout
+            db.clear();
+            var k1;
+            db.put('article', data).addBoth(function(x) {
+                db.search('test', 'forest').addBoth(function(x) {
+                    // console.log('Tiger', x)
+                    result1 = x;
+                });
+                data.body = 'Tiger live in tree';
+                db.put('article', data).addBoth(function(n) {
+                    db.search('test', 'forest').addBoth(function(x) {
+                        result2 = x;
+                    });
+                    db.search('test', 'tree').addBoth(function(x) {
+                        result3 = x;
                         // console.log('forest', x);
                         done = true;
                     });

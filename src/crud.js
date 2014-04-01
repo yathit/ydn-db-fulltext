@@ -29,7 +29,7 @@ goog.require('ydn.debug.error.InvalidOperationException');
 /**
  * @define {boolean} debug flag, always false.
  */
-ydn.db.crud.Storage.text.DEBUG = true;
+ydn.db.crud.Storage.text.DEBUG = false;
 
 
 /**
@@ -74,9 +74,16 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           if (!ydn.db.Key.isValidKey(p_key)) {
             continue;
           }
-          if (false) {
-            var key = new ydn.db.Key(store_name, p_key);
-            me.getCoreOperator().removeInternalByKeys([key]);
+          if (is_update) {
+            var kr = ydn.db.KeyRange.bound([store_name, p_key],
+                [store_name, p_key, '\uffff']).toIDBKeyRange();
+            console.log(kr);
+            var rm_req = me.getCoreOperator().removeInternal(idx_st_name, kr);
+            if (ydn.db.crud.Storage.text.DEBUG) {
+              rm_req.addBoth(function(n) {
+                window.console.log(p_key + ' remove ' + n + ' indexes');;
+              })
+            }
           }
           var doc = /** @type {!Object} */ (arr[i]);
           var scores = ft_schema.engine.analyze(store_name, p_key, doc);
@@ -164,7 +171,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
     var mth = rq.getMethod();
     if (mth == ydn.db.Request.Method.PUT) {
       var doc = /** @type {!Object} */ (args[1]);
-      inject([doc], false);
+      inject([doc], true);
     } else if (mth == ydn.db.Request.Method.PUTS) {
       inject(/** @type {!Array} */ (args[1]), true);
     } else if (mth == ydn.db.Request.Method.ADD) {
