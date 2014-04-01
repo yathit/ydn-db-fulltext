@@ -77,12 +77,11 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           if (is_update) {
             var kr = ydn.db.KeyRange.bound([store_name, p_key],
                 [store_name, p_key, '\uffff']).toIDBKeyRange();
-            console.log(kr);
             var rm_req = me.getCoreOperator().removeInternal(idx_st_name, kr);
             if (ydn.db.crud.Storage.text.DEBUG) {
               rm_req.addBoth(function(n) {
-                window.console.log(p_key + ' remove ' + n + ' indexes');;
-              })
+                window.console.log(p_key + ' remove ' + n + ' indexes');
+              });
             }
           }
           var doc = /** @type {!Object} */ (arr[i]);
