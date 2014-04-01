@@ -50,8 +50,9 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
   var indexer = function(rq, args) {
     /**
      * Inject document for indexing.
-     * @param {!Array} arr
-     * @param {boolean} is_update
+     * @param {!Array} arr list of keys.
+     * @param {boolean} is_update if update (PUT), existing index will be removed
+     * before adding new indexes.
      */
     var inject = function(arr, is_update) {
       var store_name = store.getName();
@@ -174,9 +175,9 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
     } else if (mth == ydn.db.Request.Method.PUTS) {
       inject(/** @type {!Array} */ (args[1]), true);
     } else if (mth == ydn.db.Request.Method.ADD) {
-      inject([args[1]]);
+      inject([args[1]], false);
     } else if (mth == ydn.db.Request.Method.ADDS) {
-      inject(/** @type {!Array} */ (args[1]), true);
+      inject(/** @type {!Array} */ (args[1]), false);
     } else if (mth == ydn.db.Request.Method.REMOVE ||
         mth == ydn.db.Request.Method.CLEAR) {
       var kr = /** @type {IDBKeyRange} */ (args[1]);
@@ -206,6 +207,8 @@ ydn.db.crud.Storage.prototype.search = function(name, query, opt_limit,
         name + '" not found.');
   }
   if (!ft_schema.engine.hasInit()) {
+    // Note: some scoring engine require database statistic
+    // this is the place to update database statistic for the first time.
     var sources = ft_schema.getSourceNames();
     this.getCoreOperator().countInternal(sources, true).addCallbacks(
         function(cnts) {
