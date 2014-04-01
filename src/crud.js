@@ -29,7 +29,7 @@ goog.require('ydn.debug.error.InvalidOperationException');
 /**
  * @define {boolean} debug flag, always false.
  */
-ydn.db.crud.Storage.text.DEBUG = false;
+ydn.db.crud.Storage.text.DEBUG = true;
 
 
 /**
@@ -51,8 +51,9 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
     /**
      * Inject document for indexing.
      * @param {!Array} arr
+     * @param {boolean} is_update
      */
-    var inject = function(arr) {
+    var inject = function(arr, is_update) {
       var store_name = store.getName();
       if (ydn.db.crud.Storage.text.DEBUG) {
         window.console.log(mth + ': indexing ' +
@@ -72,6 +73,10 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
           var p_key = /** @type {IDBKey} */ (keys[i]);
           if (!ydn.db.Key.isValidKey(p_key)) {
             continue;
+          }
+          if (false) {
+            var key = new ydn.db.Key(store_name, p_key);
+            me.getCoreOperator().removeInternalByKeys([key]);
           }
           var doc = /** @type {!Object} */ (arr[i]);
           var scores = ft_schema.engine.analyze(store_name, p_key, doc);
@@ -134,32 +139,38 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
         window.console.log(mth + ': removing index for key ' +
             id + ' on ' + store_name);
       }
-      rq.await(function(cnt, is_error, cb) {
-        if (is_error) {
-          cb(cnt, is_error);
-        } else {
-          rq.notify(cnt);
-          var key = new ydn.db.Key(store_name, id);
-          var req = me.getCoreOperator().removeInternalByKeys([key]);
-          req.addBoth(function(x) {
-            if (ydn.db.crud.Storage.text.DEBUG) {
-              window.console.log('index removed', x);
-            }
+      if (ydn.db.Key.isValidKey(id)) {
+        rq.await(function(cnt, is_error, cb) {
+          if (is_error) {
             cb(cnt, is_error);
-          });
-        }
-      });
+          } else {
+            rq.notify(cnt);
+            var kr = ydn.db.KeyRange.bound([store_name, id],
+                [store_name, id, '\uffff']).toIDBKeyRange();
+            var idx_st_name = ft_schema.getName();
+            var req = me.getCoreOperator().removeInternal(idx_st_name, kr);
+            req.addBoth(function(x) {
+              if (ydn.db.crud.Storage.text.DEBUG) {
+                window.console.log('index removed', x);
+              }
+              cb(cnt, is_error);
+            });
+          }
+        });
+      } else if (ydn.db.crud.Storage.text.DEBUG) {
+        window.console.log('invalid key ', id);
+      }
     };
     var mth = rq.getMethod();
     if (mth == ydn.db.Request.Method.PUT) {
       var doc = /** @type {!Object} */ (args[1]);
-      inject([doc]);
+      inject([doc], false);
     } else if (mth == ydn.db.Request.Method.PUTS) {
-      inject(/** @type {!Array} */ (args[1]));
+      inject(/** @type {!Array} */ (args[1]), true);
     } else if (mth == ydn.db.Request.Method.ADD) {
       inject([args[1]]);
     } else if (mth == ydn.db.Request.Method.ADDS) {
-      inject(/** @type {!Array} */ (args[1]));
+      inject(/** @type {!Array} */ (args[1]), true);
     } else if (mth == ydn.db.Request.Method.REMOVE ||
         mth == ydn.db.Request.Method.CLEAR) {
       var kr = /** @type {IDBKeyRange} */ (args[1]);
