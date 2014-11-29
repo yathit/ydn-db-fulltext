@@ -163,8 +163,7 @@ ydn.db.text.IndexEntry.prototype.getLoc = function() {
  */
 ydn.db.text.IndexEntry.prototype.getId = function() {
   var id = [this.store_name, this.primary_key, this.key_path, this.value];
-  return ydn.db.text.Token.isArrayKeyPathSupported ?
-      id : ydn.db.utils.encodeKey(id);
+  return id;
 };
 
 
