@@ -107,8 +107,9 @@ ydn.db.text.IndexEntry.prototype.tfMode = ydn.db.text.IndexEntry.TfMode.LOG;
 
 
 /**
- * Logarithmically scaled frequency.
- * @return {number} return  term frequency.
+ * The number of times the token occurs in document.
+ * By default, it is logarithmically scaled frequency.
+ * @return {number} return term frequency.
  */
 ydn.db.text.IndexEntry.prototype.termFreq = function() {
   if (this.tfMode == ydn.db.text.IndexEntry.TfMode.LOG) {
