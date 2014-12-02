@@ -127,9 +127,9 @@ of record value with weighting more on `first`.
 Demo applications
 -----------------
 
-* [Animal database search](http://dev.yathit.com/demo/ydn-db-text/animals/animals.html)
+* [Animal database search](http://yathit.github.io/ydndb-demo/ydn-db-text/animals/animals.html)
 Basic indexing operation, featuring text suggestion input.
-* [Biomedical Medical Journal Abstract Search](http://dev.yathit.com/demo/ydn-db-text/pubmed-search/index.html)
+* [Biomedical Medical Journal Abstract Search](http://yathit.github.io/ydndb-demo/ydn-db-text/pubmed-search/index.html)
 Ajax data load, free text search ranking and presenting result with matching words highlighted.
 * [All demos](http://dev.yathit.com/index/demos.html)
 
