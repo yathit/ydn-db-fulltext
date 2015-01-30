@@ -104,7 +104,7 @@ ydn.db.text.RankEntry.prototype.getScore = function() {
     var entry = this.results[i];
     var index = this.catalog.getSource(entry.getStoreName(),
         entry.getKeyPath());
-    goog.asserts.assertObject(index, 'Index for ' + entry.getStoreName() +
+    goog.asserts.assertObject(index, 'Inverted Index for ' + entry.getStoreName() +
         ':' + entry.getKeyPath() + ' not found.');
     var s1 = entry.getScore();
     var w = index.getWeight();
