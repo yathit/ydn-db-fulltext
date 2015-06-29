@@ -191,6 +191,48 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
 
 
 /**
+ * Full text search.
+ * @param {ydn.db.schema.fulltext.ResultSet} query
+ * @return {!ydn.db.Request}
+ */
+ydn.db.crud.DbOperator.prototype.search = function(query) {
+  var store_names = query.getStoreList();
+  goog.log.finest(this.logger, 'query ' + query);
+  var req = this.tx_thread.request(ydn.db.Request.Method.SEARCH, store_names,
+      ydn.db.base.TransactionMode.READ_ONLY);
+  req.addTxback(function() {
+    var exe = this.getCrudExecutor();
+    // console.log('search ' + query);
+
+    query.nextLookup(function(store_name, index_name, kr, entry) {
+      var iReq = req.copy();
+      // console.log(store_name, index_name, kr);
+      exe.list(iReq, ydn.db.base.QueryMethod.LIST_VALUE, store_name, index_name,
+          kr.toIDBKeyRange(), 100, 0, false, false);
+      iReq.addBoth(function(x) {
+        // console.log(store_name, index_name, kr.lower, x);
+        var e = null;
+        if (!(x instanceof Array)) {
+          e = x;
+          x = [];
+        }
+        var next = query.addResult(this, /** @type {Array} */ (x));
+        if (next === true) {
+          req.notify(query);
+        } else if (next === false) {
+          req.callback(query.collect());
+        }
+        if (e) {
+          throw e;
+        }
+      }, entry);
+    });
+  }, this);
+  return req;
+};
+
+
+/**
  * Full text search query.
  * @param {string} name full text search index name.
  * @param {string} query text query.
