@@ -29,7 +29,7 @@ goog.require('ydn.debug.error.InvalidOperationException');
 /**
  * Full text search.
  * @param {ydn.db.schema.fulltext.ResultSet} query
- * @return {!ydn.db.Request}
+ * @return {!ydn.db.Request<Array<FullTextSearchResult>>}
  */
 ydn.db.crud.DbOperator.prototype.search = function(query) {
   var store_names = query.getStoreList();
