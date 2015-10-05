@@ -48,26 +48,28 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
   var indexer = function(rq, args) {
     /**
      * Inject document for indexing.
-     * @param {!Array} arr list of keys.
-     * @param {boolean} is_update if update (PUT), existing index will be removed
+     * @param {!Array|Object} arr document to index.
+     * @param {ydn.db.Request.Method} mth if update (PUT), existing index will be removed
      * before adding new indexes.
      */
-    var inject = function(arr, is_update) {
+    var inject = function(arr, mth) {
+      var is_update = mth == ydn.db.Request.Method.PUTS || mth == ydn.db.Request.Method.PUT;
+      var is_single = mth == ydn.db.Request.Method.PUT || mth == ydn.db.Request.Method.ADD;
       var store_name = store.getName();
       if (ydn.db.crud.Storage.text.DEBUG) {
         window.console.log(mth + ': indexing ' +
             arr.length + ' objects for ' + store_name);
       }
-      rq.await(function(keys, is_error, cb) {
-        rq.notify(keys);
+      rq.await(function(in_keys, is_error, cb) {
+        rq.notify(in_keys);
         if (is_error) {
-          cb(keys, is_error);
+          cb(in_keys, is_error);
           return;
         }
         var idx_st_name = ft_schema.getName();
-        if (!goog.isArray(keys)) {
-          keys = [keys];
-        }
+        var keys = is_single ? [in_keys] : in_keys;
+        var out_arr = is_single ? [arr] : arr;
+
         for (var i = 0; i < keys.length; i++) {
           var p_key = /** @type {IDBKey} */ (keys[i]);
           if (!ydn.db.Key.isValidKey(p_key)) {
@@ -83,7 +85,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
               });
             }
           }
-          var doc = /** @type {!Object} */ (arr[i]);
+          var doc = /** @type {!Object} */ (out_arr[i]);
           var scores = ft_schema.engine.analyze(store_name, p_key, doc);
           var json = scores.map(function(x) {
             return x.toJson();
@@ -99,7 +101,7 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
                   if (ydn.db.crud.Storage.text.DEBUG) {
                     window.console.log('index done', x);
                   }
-                  cb(keys, is_error);
+                  cb(in_keys, is_error);
                 });
           }
         }
@@ -167,15 +169,9 @@ ydn.db.crud.Storage.prototype.addFullTextIndexer = function(store, ft_schema) {
       }
     };
     var mth = rq.getMethod();
-    if (mth == ydn.db.Request.Method.PUT) {
-      var doc = /** @type {!Object} */ (args[1]);
-      inject([doc], true);
-    } else if (mth == ydn.db.Request.Method.PUTS) {
-      inject(/** @type {!Array} */ (args[1]), true);
-    } else if (mth == ydn.db.Request.Method.ADD) {
-      inject([args[1]], false);
-    } else if (mth == ydn.db.Request.Method.ADDS) {
-      inject(/** @type {!Array} */ (args[1]), false);
+    if (mth == ydn.db.Request.Method.PUT || mth == ydn.db.Request.Method.PUTS ||
+        mth == ydn.db.Request.Method.ADD || mth == ydn.db.Request.Method.ADDS) {
+      inject(args[1], mth);
     } else if (mth == ydn.db.Request.Method.REMOVE ||
         mth == ydn.db.Request.Method.CLEAR) {
       var kr = /** @type {IDBKeyRange} */ (args[1]);

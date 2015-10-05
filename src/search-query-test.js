@@ -24,6 +24,8 @@ var db_schema = {
       keyPath: 'title'
     }]
 };
+
+
 var test_inject = function() {
   var data = {
     title: 'tiger',
@@ -58,6 +60,66 @@ var test_inject = function() {
     done = true;
   });
 };
+
+
+var test_inject_with_composite_key = function() {
+  var db_schema = {
+    fullTextCatalogs: [{
+      name: 'test',
+      lang: 'en',
+      sources: [
+        {
+          storeName: 'article',
+          keyPath: 'title',
+          weight: 1.0
+        }, {
+          storeName: 'article',
+          keyPath: 'body',
+          weight: 0.5
+        }]
+    }],
+    stores: [
+      {
+        name: 'article',
+        keyPath: ['topic', 'title']
+      }]
+  };
+  var data = {
+    topic: 'animal',
+    title: 'tiger',
+    body: 'This is a test for data injection. Only one tiger injected'
+  };
+  var db = new ydn.db.Storage('test_inject-composite_key', db_schema, {policy: 'atomic'});
+  var done;
+  var read_data, schema, keywords;
+  waitForCondition(
+      // Condition
+      function () {
+        return done;
+      },
+      // Continuation
+      function () {
+        var store_names = schema.stores.map(function(x) {return x.name});
+        assertArrayEquals('two object store', ['article', 'test'], store_names);
+        assertObjectEquals('article tiger inserted as it is', data, read_data);
+        reachedFinalContinuation = true;
+        ydn.db.deleteDatabase(db.getName(), db.getType());
+        db.close();
+      },
+      100, // interval
+      1000); // maxTimeout
+  db.clear();
+  db.getSchema(function(x) {
+    schema = x;
+  });
+  db.put('article', data);
+  db.get('article', ['animal', 'tiger']).addBoth(function(x) {
+    read_data = x;
+    done = true;
+  });
+};
+
+
 var test_basic_query = function() {
   var data = {
     title: 'Tiger',
@@ -126,7 +188,7 @@ var test_index_delete = function() {
   var k1;
   db.put('article', data).addBoth(function(x) {
     // console.log(x);
-    k1 = x[0];
+    k1 = x;
     db.search('test', 'Tiger').addBoth(function(x) {
       // console.log('Tiger', x)
       result1 = x;
